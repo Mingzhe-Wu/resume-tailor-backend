@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/profiles")
+@RequestMapping("/api/profile")
 public class ProfileController {
     private final ProfileService profileService;
 
@@ -21,7 +21,7 @@ public class ProfileController {
     }
 
     // Fetch the profile of a given user id from DB
-    @GetMapping("/{userId}")
+    @GetMapping("/fetch/{userId}")
     public ResponseEntity<Profile> fetchProfile (@PathVariable Long userId) {
         return ResponseEntity.ok(profileService.fetchProfile(userId));
     }
@@ -29,8 +29,8 @@ public class ProfileController {
     // Update the profile of a given user id
     @PutMapping("/update/{userId}")
     public ResponseEntity<Profile> updateProfile (@PathVariable Long userId,
-                                                  @RequestBody @Valid UpdateProfileDTO profile) {
-        return ResponseEntity.ok(profileService.updateProfile(userId, profile));
+                                                  @RequestBody UpdateProfileDTO request) {
+        return ResponseEntity.ok(profileService.updateProfile(userId, request));
     }
 
     // Delete the profile of a given user id

@@ -15,7 +15,7 @@ public class ProfileService {
     // Construct the profile entity from the uploaded profile DTO and call the mapper
     public Profile createProfile(CreateProfileDTO profile) {
         // See if profile already exist for the given user id
-        Profile existingProfile = profileMapper.findById(profile.getUserId());
+        Profile existingProfile = profileMapper.findByUserId(profile.getUserId());
         if (existingProfile != null) {
             throw new BadRequestException("Profile already exists for this user");
         }
@@ -35,12 +35,12 @@ public class ProfileService {
 
     // Fetch the profile of a given user id from DB
     public Profile fetchProfile(Long userId) {
-        return profileMapper.findById(userId);
+        return profileMapper.findByUserId(userId);
     }
 
     // Fetch the existing profile and update
     public Profile updateProfile(Long userId, UpdateProfileDTO request) {
-        Profile existingProfile = profileMapper.findById(userId);
+        Profile existingProfile = profileMapper.findByUserId(userId);
         if (existingProfile == null) {
             throw new ResourceNotFoundException("Profile not found");
         }
@@ -57,12 +57,12 @@ public class ProfileService {
         update.setSummary(request.getSummary());
 
         profileMapper.updateById(update);
-        return profileMapper.findById(userId);
+        return profileMapper.findByUserId(userId);
     }
 
     // Delete the profile of a given user id
     public void deleteProfile(Long userId) {
-        Profile existingProfile = profileMapper.findById(userId);
+        Profile existingProfile = profileMapper.findByUserId(userId);
         if (existingProfile == null) {
             throw new ResourceNotFoundException("Profile not found");
         }

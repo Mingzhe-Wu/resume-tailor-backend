@@ -31,7 +31,7 @@ public interface ProfileMapper {
     )
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    void insert(Profile profile);
+    int insert(Profile profile);
 
     // Fetch the profile of a given user id from DB
     @Select("""
@@ -50,7 +50,26 @@ public interface ProfileMapper {
         FROM profiles
         WHERE user_id = #{userId}
         """)
-    Profile findById(Long userId);
+    Profile findByUserId(Long userId);
+
+    // Fetch the profile of a given user id from DB
+    @Select("""
+        SELECT
+            id,
+            user_id,
+            full_name,
+            phone,
+            contact_email,
+            linkedin_url,
+            github_url,
+            location,
+            summary,
+            created_at,
+            updated_at
+        FROM profiles
+        WHERE id = #{id}
+        """)
+    Profile findById(Long id);
 
     // Update the profile of a given user id
     @Update("""
@@ -68,13 +87,13 @@ public interface ProfileMapper {
         WHERE user_id = #{userId}
         </script>
         """)
-    void updateById(Profile profile);
+    int updateById(Profile profile);
 
     // Delete the profile of a given user id
     @Delete("""
         DELETE FROM profiles
         WHERE user_id = #{userId}
         """)
-    void deleteById(Long userId);
+    int deleteById(Long userId);
 
 }
