@@ -1,4 +1,4 @@
-package com.mingzhe.resumetailor.dtos;
+package com.mingzhe.resumetailor.profiles;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -7,10 +7,10 @@ import lombok.Data;
 // fullName, and contactEmail required
 @Data
 public class UpdateProfileDTO {
-    @NotBlank
+    @NotBlank(message = "fullName is required for profile")
     private String fullName;
     private String phone;
-    @NotBlank
+    @NotBlank(message = "contactEmail is required for profile")
     private String contactEmail;
     private String linkedinUrl;
     private String githubUrl;

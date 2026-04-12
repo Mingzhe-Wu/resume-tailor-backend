@@ -1,9 +1,7 @@
-package com.mingzhe.resumetailor.services;
+package com.mingzhe.resumetailor.profiles;
 
-import com.mingzhe.resumetailor.dtos.CreateProfileDTO;
-import com.mingzhe.resumetailor.dtos.UpdateProfileDTO;
-import com.mingzhe.resumetailor.entities.Profile;
-import com.mingzhe.resumetailor.mappers.ProfileMapper;
+import com.mingzhe.resumetailor.exceptions.BadRequestException;
+import com.mingzhe.resumetailor.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +14,12 @@ public class ProfileService {
 
     // Construct the profile entity from the uploaded profile DTO and call the mapper
     public Profile createProfile(CreateProfileDTO profile) {
+        // See if profile already exist for the given user id
+        Profile existingProfile = profileMapper.findById(profile.getUserId());
+        if (existingProfile != null) {
+            throw new BadRequestException("Profile already exists for this user");
+        }
+
         Profile profileEntity = new Profile();
         profileEntity.setUserId(profile.getUserId());
         profileEntity.setFullName(profile.getFullName());
@@ -38,7 +42,7 @@ public class ProfileService {
     public Profile updateProfile(Long userId, UpdateProfileDTO request) {
         Profile existingProfile = profileMapper.findById(userId);
         if (existingProfile == null) {
-            throw new RuntimeException("Profile not found");
+            throw new ResourceNotFoundException("Profile not found");
         }
 
         existingProfile.setFullName(request.getFullName());
@@ -57,7 +61,7 @@ public class ProfileService {
     public void deleteProfile(Long userId) {
         Profile existingProfile = profileMapper.findById(userId);
         if (existingProfile == null) {
-            throw new RuntimeException("Profile not found");
+            throw new ResourceNotFoundException("Profile not found");
         }
 
         profileMapper.deleteById(userId);

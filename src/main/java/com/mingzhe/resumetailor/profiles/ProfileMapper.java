@@ -1,6 +1,5 @@
-package com.mingzhe.resumetailor.mappers;
+package com.mingzhe.resumetailor.profiles;
 
-import com.mingzhe.resumetailor.entities.Profile;
 import org.apache.ibatis.annotations.*;
 
 @Mapper

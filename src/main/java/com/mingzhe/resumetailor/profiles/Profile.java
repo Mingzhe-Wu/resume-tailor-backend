@@ -1,4 +1,4 @@
-package com.mingzhe.resumetailor.entities;
+package com.mingzhe.resumetailor.profiles;
 
 import lombok.Data;
 
