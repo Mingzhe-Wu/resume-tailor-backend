@@ -1,11 +1,15 @@
-package com.mingzhe.resumetailor.profiles;
+package com.mingzhe.resumetailor.profile;
 
 import lombok.Data;
 
-// DTO for profile update
-// fullName, and contactEmail required
+import java.time.LocalDateTime;
+
 @Data
-public class UpdateProfileDTO {
+public class Profile {
+
+    private Long id;
+
+    private Long userId;
 
     private String fullName;
 
@@ -20,5 +24,9 @@ public class UpdateProfileDTO {
     private String location;
 
     private String summary;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
 }

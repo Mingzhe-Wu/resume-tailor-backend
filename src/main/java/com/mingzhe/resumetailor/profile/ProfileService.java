@@ -1,4 +1,4 @@
-package com.mingzhe.resumetailor.profiles;
+package com.mingzhe.resumetailor.profile;
 
 import com.mingzhe.resumetailor.exceptions.BadRequestException;
 import com.mingzhe.resumetailor.exceptions.ResourceNotFoundException;

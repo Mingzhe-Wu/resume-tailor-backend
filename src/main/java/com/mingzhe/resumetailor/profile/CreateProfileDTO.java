@@ -1,4 +1,4 @@
-package com.mingzhe.resumetailor.profiles;
+package com.mingzhe.resumetailor.profile;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

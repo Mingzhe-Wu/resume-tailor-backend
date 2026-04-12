@@ -1,4 +1,4 @@
-package com.mingzhe.resumetailor.profiles;
+package com.mingzhe.resumetailor.profile;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;

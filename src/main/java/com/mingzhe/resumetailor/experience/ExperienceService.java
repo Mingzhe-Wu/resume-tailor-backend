@@ -2,8 +2,8 @@ package com.mingzhe.resumetailor.experience;
 
 import com.mingzhe.resumetailor.exceptions.BadRequestException;
 import com.mingzhe.resumetailor.exceptions.ResourceNotFoundException;
-import com.mingzhe.resumetailor.profiles.Profile;
-import com.mingzhe.resumetailor.profiles.ProfileMapper;
+import com.mingzhe.resumetailor.profile.Profile;
+import com.mingzhe.resumetailor.profile.ProfileMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

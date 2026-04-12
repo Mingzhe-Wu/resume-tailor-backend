@@ -1,4 +1,4 @@
-package com.mingzhe.resumetailor.profiles;
+package com.mingzhe.resumetailor.profile;
 
 import org.apache.ibatis.annotations.*;
 
