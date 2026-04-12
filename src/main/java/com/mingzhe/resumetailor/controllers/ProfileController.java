@@ -5,6 +5,7 @@ import com.mingzhe.resumetailor.dtos.UpdateProfileDTO;
 import com.mingzhe.resumetailor.entities.Profile;
 import com.mingzhe.resumetailor.services.ProfileService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,20 +19,29 @@ public class ProfileController {
 
     // Create a new profile
     @PostMapping("/create")
-    public Profile createProfile (@RequestBody @Valid CreateProfileDTO profile) {
-        return profileService.createProfile(profile);
+    public ResponseEntity<Profile> createProfile (@RequestBody @Valid CreateProfileDTO profile) {
+        Profile createdProfile = profileService.createProfile(profile);
+        return ResponseEntity.status(201).body(createdProfile);
     }
 
     // Fetch the profile of a given user id from DB
     @GetMapping("/{userId}")
-    public Profile fetchProfile (@PathVariable Long userId) {
-        return profileService.fetchProfile(userId);
+    public ResponseEntity<Profile> fetchProfile (@PathVariable Long userId) {
+        return ResponseEntity.ok(profileService.fetchProfile(userId));
     }
 
     // Update the profile of a given user id
     @PutMapping("/update/{userId}")
-    public Profile updateProfile (@PathVariable Long userId,
-                                  @RequestBody @Valid UpdateProfileDTO profile) {
-        return profileService.updateProfile(userId, profile);
+    public ResponseEntity<Profile> updateProfile (@PathVariable Long userId,
+                                                  @RequestBody @Valid UpdateProfileDTO profile) {
+        return ResponseEntity.ok(profileService.updateProfile(userId, profile));
     }
+
+    // Delete the profile of a given user id
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<Void> deleteProfile(@PathVariable Long userId) {
+        profileService.deleteProfile(userId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

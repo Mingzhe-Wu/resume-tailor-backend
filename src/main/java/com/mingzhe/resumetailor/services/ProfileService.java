@@ -53,4 +53,14 @@ public class ProfileService {
         return profileMapper.findById(userId);
     }
 
+    // Delete the profile of a given user id
+    public void deleteProfile(Long userId) {
+        Profile existingProfile = profileMapper.findById(userId);
+        if (existingProfile == null) {
+            throw new RuntimeException("Profile not found");
+        }
+
+        profileMapper.deleteById(userId);
+    }
+
 }

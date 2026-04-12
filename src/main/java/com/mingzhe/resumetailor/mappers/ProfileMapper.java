@@ -68,6 +68,11 @@ public interface ProfileMapper {
         """)
     void updateById(Profile profile);
 
-
+    // Delete the profile of a given user id
+    @Delete("""
+        DELETE FROM profiles
+        WHERE user_id = #{userId}
+        """)
+    void deleteById(Long userId);
 
 }
