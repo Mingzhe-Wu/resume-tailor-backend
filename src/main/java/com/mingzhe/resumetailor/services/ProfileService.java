@@ -1,6 +1,7 @@
 package com.mingzhe.resumetailor.services;
 
 import com.mingzhe.resumetailor.dtos.CreateProfileDTO;
+import com.mingzhe.resumetailor.dtos.UpdateProfileDTO;
 import com.mingzhe.resumetailor.entities.Profile;
 import com.mingzhe.resumetailor.mappers.ProfileMapper;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,25 @@ public class ProfileService {
 
     // Fetch the profile of a given user id from DB
     public Profile fetchProfile(Long userId) {
+        return profileMapper.findById(userId);
+    }
+
+    // Fetch the existing profile and update
+    public Profile updateProfile(Long userId, UpdateProfileDTO request) {
+        Profile existingProfile = profileMapper.findById(userId);
+        if (existingProfile == null) {
+            throw new RuntimeException("Profile not found");
+        }
+
+        existingProfile.setFullName(request.getFullName());
+        existingProfile.setPhone(request.getPhone());
+        existingProfile.setContactEmail(request.getContactEmail());
+        existingProfile.setLinkedinUrl(request.getLinkedinUrl());
+        existingProfile.setGithubUrl(request.getGithubUrl());
+        existingProfile.setLocation(request.getLocation());
+        existingProfile.setSummary(request.getSummary());
+
+        profileMapper.updateById(existingProfile);
         return profileMapper.findById(userId);
     }
 

@@ -1,10 +1,7 @@
 package com.mingzhe.resumetailor.mappers;
 
 import com.mingzhe.resumetailor.entities.Profile;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface ProfileMapper {
@@ -55,4 +52,22 @@ public interface ProfileMapper {
         WHERE user_id = #{userId}
         """)
     Profile findById(Long userId);
+
+    // Update the profile of a given user id
+    @Update("""
+        UPDATE profiles
+        SET
+            full_name = #{fullName},
+            phone = #{phone},
+            contact_email = #{contactEmail},
+            linkedin_url = #{linkedinUrl},
+            github_url = #{githubUrl},
+            location = #{location},
+            summary = #{summary}
+        WHERE user_id = #{userId}
+        """)
+    void updateById(Profile profile);
+
+
+
 }
