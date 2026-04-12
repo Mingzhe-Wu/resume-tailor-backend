@@ -54,16 +54,19 @@ public interface ProfileMapper {
 
     // Update the profile of a given user id
     @Update("""
+        <script>
         UPDATE profiles
-        SET
-            full_name = #{fullName},
-            phone = #{phone},
-            contact_email = #{contactEmail},
-            linkedin_url = #{linkedinUrl},
-            github_url = #{githubUrl},
-            location = #{location},
-            summary = #{summary}
+        <set>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="contactEmail != null">contact_email = #{contactEmail},</if>
+            <if test="linkedinUrl != null">linkedin_url = #{linkedinUrl},</if>
+            <if test="githubUrl != null">github_url = #{githubUrl},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="summary != null">summary = #{summary},</if>
+        </set>
         WHERE user_id = #{userId}
+        </script>
         """)
     void updateById(Profile profile);
 
