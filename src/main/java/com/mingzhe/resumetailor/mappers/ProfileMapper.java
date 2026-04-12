@@ -4,10 +4,11 @@ import com.mingzhe.resumetailor.entities.Profile;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface ProfileMapper {
-    // Insert the new profile into the database, and set id of the profile to the auto-generated.
+    // Insert the new profile into the database, and set id of the profile to the auto-generated
     @Insert("""
     INSERT INTO profiles (
         user_id,
@@ -35,4 +36,23 @@ public interface ProfileMapper {
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(Profile profile);
+
+    // Fetch the profile of a given user id from DB
+    @Select("""
+        SELECT
+            id,
+            user_id,
+            full_name,
+            phone,
+            contact_email,
+            linkedin_url,
+            github_url,
+            location,
+            summary,
+            created_at,
+            updated_at
+        FROM profiles
+        WHERE user_id = #{userId}
+        """)
+    Profile findById(Long userId);
 }

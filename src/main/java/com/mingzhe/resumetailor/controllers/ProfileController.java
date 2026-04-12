@@ -4,10 +4,7 @@ import com.mingzhe.resumetailor.dtos.CreateProfileDTO;
 import com.mingzhe.resumetailor.entities.Profile;
 import com.mingzhe.resumetailor.services.ProfileService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/profiles")
@@ -18,9 +15,15 @@ public class ProfileController {
         this.profileService = profileService;
     }
 
-    // Create a new profile.
+    // Create a new profile
     @PostMapping("/create")
     public Profile createProfile (@RequestBody @Valid CreateProfileDTO profile) {
         return profileService.createProfile(profile);
+    }
+
+    // Fetch the profile of a given user id from DB
+    @GetMapping("/{userId}")
+    public Profile fetchProfile (@PathVariable Long userId) {
+        return profileService.fetchProfile(userId);
     }
 }

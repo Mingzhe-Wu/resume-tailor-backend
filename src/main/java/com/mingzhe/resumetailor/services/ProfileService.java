@@ -13,7 +13,7 @@ public class ProfileService {
         this.profileMapper = profileMapper;
     }
 
-    // Construct the profile entity from the uploaded profile DTO and call the mapper.
+    // Construct the profile entity from the uploaded profile DTO and call the mapper
     public Profile createProfile(CreateProfileDTO profile) {
         Profile profileEntity = new Profile();
         profileEntity.setUserId(profile.getUserId());
@@ -28,5 +28,9 @@ public class ProfileService {
         return profileEntity;
     }
 
+    // Fetch the profile of a given user id from DB
+    public Profile fetchProfile(Long userId) {
+        return profileMapper.findById(userId);
+    }
 
 }
