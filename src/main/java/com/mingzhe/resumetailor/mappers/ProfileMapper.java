@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Options;
 
 @Mapper
 public interface ProfileMapper {
+    // Insert the new profile into the database, and set id of the profile to the auto-generated.
     @Insert("""
     INSERT INTO profiles (
         user_id,
@@ -33,5 +34,5 @@ public interface ProfileMapper {
     )
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
-    int insert(Profile profile);
+    void insert(Profile profile);
 }

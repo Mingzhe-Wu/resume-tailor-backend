@@ -18,6 +18,7 @@ public class ProfileController {
         this.profileService = profileService;
     }
 
+    // Create a new profile.
     @PostMapping("/create")
     public Profile createProfile (@RequestBody @Valid CreateProfileDTO profile) {
         return profileService.createProfile(profile);
