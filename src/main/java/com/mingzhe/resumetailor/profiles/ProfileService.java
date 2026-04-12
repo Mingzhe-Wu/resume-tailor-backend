@@ -45,15 +45,18 @@ public class ProfileService {
             throw new ResourceNotFoundException("Profile not found");
         }
 
-        existingProfile.setFullName(request.getFullName());
-        existingProfile.setPhone(request.getPhone());
-        existingProfile.setContactEmail(request.getContactEmail());
-        existingProfile.setLinkedinUrl(request.getLinkedinUrl());
-        existingProfile.setGithubUrl(request.getGithubUrl());
-        existingProfile.setLocation(request.getLocation());
-        existingProfile.setSummary(request.getSummary());
+        Profile update = new Profile();
+        update.setUserId(userId);
 
-        profileMapper.updateById(existingProfile);
+        update.setFullName(request.getFullName());
+        update.setPhone(request.getPhone());
+        update.setContactEmail(request.getContactEmail());
+        update.setLinkedinUrl(request.getLinkedinUrl());
+        update.setGithubUrl(request.getGithubUrl());
+        update.setLocation(request.getLocation());
+        update.setSummary(request.getSummary());
+
+        profileMapper.updateById(update);
         return profileMapper.findById(userId);
     }
 
