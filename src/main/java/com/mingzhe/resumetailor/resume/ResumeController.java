@@ -46,4 +46,9 @@ public class ResumeController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/generate/{jobId}")
+    public ResponseEntity<String> generateResume(@PathVariable Long jobId) {
+        return ResponseEntity.ok(resumeService.generateResume(jobId));
+    }
+
 }
