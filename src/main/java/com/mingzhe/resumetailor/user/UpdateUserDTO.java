@@ -2,17 +2,11 @@ package com.mingzhe.resumetailor.user;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-public class User {
-
-    private Long id;
+public class UpdateUserDTO {
 
     private String email;
 
     private String password;
-
-    private LocalDateTime createdAt;
 
 }
