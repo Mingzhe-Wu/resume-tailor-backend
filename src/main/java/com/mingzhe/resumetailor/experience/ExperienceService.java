@@ -64,8 +64,12 @@ public class ExperienceService {
         }
 
         // Check if the updated start date/end date are still valid
-        LocalDate startDateToCheck = request.getStartDate() != null ? request.getStartDate() : existingExperience.getStartDate();
-        LocalDate endDateToCheck = request.getEndDate() != null ? request.getEndDate() : existingExperience.getEndDate();
+        LocalDate startDateToCheck = request.getStartDate() != null
+                ? request.getStartDate()
+                : existingExperience.getStartDate();
+        LocalDate endDateToCheck = request.getEndDate() != null
+                ? request.getEndDate()
+                : existingExperience.getEndDate();
 
         if (endDateToCheck != null && startDateToCheck != null && endDateToCheck.isBefore(startDateToCheck)) {
             throw new BadRequestException("endDate cannot be before startDate");

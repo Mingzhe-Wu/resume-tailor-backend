@@ -74,6 +74,7 @@ public interface ExperienceMapper {
             <if test="startDate != null">start_date = #{startDate},</if>
             <if test="endDate != null">end_date = #{endDate},</if>
             <if test="description != null">description = #{description},</if>
+            updated_at = NOW()
         </set>
         WHERE id = #{id}
         </script>

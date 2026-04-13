@@ -83,6 +83,7 @@ public interface ProfileMapper {
             <if test="githubUrl != null">github_url = #{githubUrl},</if>
             <if test="location != null">location = #{location},</if>
             <if test="summary != null">summary = #{summary},</if>
+            updated_at = NOW()
         </set>
         WHERE user_id = #{userId}
         </script>
