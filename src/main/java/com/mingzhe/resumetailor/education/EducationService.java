@@ -32,10 +32,8 @@ public class EducationService {
             throw new BadRequestException("endDate cannot be before startDate");
         }
 
-        if (request.getGpa() != null) {
-            if (request.getGpa().compareTo(BigDecimal.ZERO) < 0 || request.getGpa().compareTo(new BigDecimal("4.00")) > 0) {
-                throw new BadRequestException("gpa must be between 0.00 and 4.00");
-            }
+        if (request.getGpa() != null && !isValidGpa(request.getGpa())) {
+            throw new BadRequestException("gpa must be between 0.00 and 4.00");
         }
 
         Education education = new Education();
@@ -79,10 +77,8 @@ public class EducationService {
             throw new BadRequestException("endDate cannot be before startDate");
         }
 
-        if (request.getGpa() != null) {
-            if (request.getGpa().compareTo(BigDecimal.ZERO) < 0 || request.getGpa().compareTo(new BigDecimal("4.00")) > 0) {
-                throw new BadRequestException("gpa must be between 0.00 and 4.00");
-            }
+        if (!isValidGpa(request.getGpa())) {
+            throw new BadRequestException("gpa must be between 0.00 and 4.00");
         }
 
         Education update = new Education();
@@ -109,4 +105,7 @@ public class EducationService {
         educationMapper.deleteById(id);
     }
 
+    private boolean isValidGpa(BigDecimal gpa) {
+        return gpa.compareTo(BigDecimal.ZERO) >= 0 && gpa.compareTo(new BigDecimal("4.00")) <= 0;
+    }
 }
