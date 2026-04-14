@@ -1,5 +1,6 @@
 package com.mingzhe.resumetailor.resume;
 
+import com.mingzhe.resumetailor.OpenAiService;
 import com.mingzhe.resumetailor.education.Education;
 import com.mingzhe.resumetailor.education.EducationMapper;
 import com.mingzhe.resumetailor.exceptions.BadRequestException;
@@ -15,6 +16,8 @@ import com.mingzhe.resumetailor.project.ProjectMapper;
 import com.mingzhe.resumetailor.skill.Skill;
 import com.mingzhe.resumetailor.skill.SkillMapper;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -29,7 +32,9 @@ public class ResumeService {
     private final SkillMapper skillMapper;
     private final ResumeMapper resumeMapper;
 
-    public ResumeService(JobMapper jobMapper, ProfileMapper profileMapper, ExperienceMapper experienceMapper, EducationMapper educationMapper, ProjectMapper projectMapper, SkillMapper skillMapper, ResumeMapper resumeMapper) {
+    private final OpenAiService openAiService;
+
+    public ResumeService(JobMapper jobMapper, ProfileMapper profileMapper, ExperienceMapper experienceMapper, EducationMapper educationMapper, ProjectMapper projectMapper, SkillMapper skillMapper, ResumeMapper resumeMapper, OpenAiService openAiService) {
         this.jobMapper = jobMapper;
         this.profileMapper = profileMapper;
         this.experienceMapper = experienceMapper;
@@ -37,6 +42,7 @@ public class ResumeService {
         this.projectMapper = projectMapper;
         this.skillMapper = skillMapper;
         this.resumeMapper = resumeMapper;
+        this.openAiService = openAiService;
     }
 
     public Resume createResume(CreateResumeDTO request) {
@@ -111,10 +117,26 @@ public class ResumeService {
 
         String prompt = buildPrompt(job, profile, experiences, educations, projects, skills);
 
-        System.out.println("===== GENERATED PROMPT =====");
+        System.out.println("===== PROMPT =====");
         System.out.println(prompt);
 
-        return prompt;
+        String aiResponse = openAiService.generate(prompt);
+
+        System.out.println("===== RAW AI RESPONSE =====");
+        System.out.println(aiResponse);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(aiResponse);
+
+        String content = root.path("choices")
+                .get(0)
+                .path("message")
+                .path("content").asString();
+
+        System.out.println("===== Text Obtained From Json =====");
+        System.out.println(content);
+
+        return content;
     }
 
     private String buildPrompt(Job job,
