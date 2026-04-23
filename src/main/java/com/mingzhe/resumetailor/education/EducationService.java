@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Business logic for validating and managing Education records.
+ */
 @Service
 public class EducationService {
 

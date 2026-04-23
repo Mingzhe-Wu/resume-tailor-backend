@@ -5,6 +5,9 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Represents Project data in the application.
+ */
 @Data
 public class Project {
 

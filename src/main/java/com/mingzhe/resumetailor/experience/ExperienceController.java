@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST endpoints for managing Experience records.
+ */
 @RestController
 @RequestMapping("/api/experience")
 public class ExperienceController {

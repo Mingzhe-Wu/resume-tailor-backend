@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+/**
+ * MyBatis mapper for User database operations.
+ */
 @Mapper
 public interface UserMapper {
 

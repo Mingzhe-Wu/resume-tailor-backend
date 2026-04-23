@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents Profile data in the application.
+ */
 @Data
 public class Profile {
 

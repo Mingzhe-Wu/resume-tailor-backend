@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
+/**
+ * MyBatis mapper for Resume database operations.
+ */
 @Mapper
 public interface ResumeMapper {
 

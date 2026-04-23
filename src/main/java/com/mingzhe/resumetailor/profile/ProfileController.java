@@ -4,6 +4,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST endpoints for managing Profile records.
+ */
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileController {

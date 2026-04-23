@@ -6,6 +6,10 @@ import lombok.Data;
 
 // DTO for profile creation
 // userID, fullName, and contactEmail required
+
+/**
+ * Request body used when creating Profile records.
+ */
 @Data
 public class CreateProfileDTO {
 

@@ -4,6 +4,9 @@ import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
+/**
+ * MyBatis mapper for Experience database operations.
+ */
 @Mapper
 public interface ExperienceMapper {
 

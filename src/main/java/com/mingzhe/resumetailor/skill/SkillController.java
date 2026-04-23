@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST endpoints for managing Skill records.
+ */
 @RestController
 @RequestMapping("/api/skill")
 public class SkillController {

@@ -4,6 +4,9 @@ import com.mingzhe.resumetailor.exceptions.BadRequestException;
 import com.mingzhe.resumetailor.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Business logic for validating and managing Profile records.
+ */
 @Service
 public class ProfileService {
     private final ProfileMapper profileMapper;

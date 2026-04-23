@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST endpoints for managing Job records.
+ */
 @RestController
 @RequestMapping("/api/job")
 public class JobController {

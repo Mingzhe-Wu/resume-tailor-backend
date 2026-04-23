@@ -5,6 +5,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Request body used when updating Education records.
+ */
 @Data
 public class UpdateEducationDTO {
 

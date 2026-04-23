@@ -2,6 +2,9 @@ package com.mingzhe.resumetailor.profile;
 
 import org.apache.ibatis.annotations.*;
 
+/**
+ * MyBatis mapper for Profile database operations.
+ */
 @Mapper
 public interface ProfileMapper {
     // Insert the new profile into the database, and set id of the profile to the auto-generated

@@ -21,6 +21,9 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
+/**
+ * Business logic for validating and managing Resume records.
+ */
 @Service
 public class ResumeService {
 
@@ -108,22 +111,15 @@ public class ResumeService {
     }
 
     public String generateResume(Long jobId) {
-        Job job = jobMapper.findById(jobId);
-        Profile profile = profileMapper.findByUserId(job.getUserId());
-        List<Experience> experiences = experienceMapper.findByProfileId(profile.getId());
-        List<Education> educations = educationMapper.findByProfileId(profile.getId());
-        List<Project> projects = projectMapper.findByProfileId(profile.getId());
-        List<Skill> skills = skillMapper.findByProfileId(profile.getId());
+        // use
+        ResumeGenerationContext context = fetchResumeContext(jobId);
 
-        String prompt = buildPrompt(job, profile, experiences, educations, projects, skills);
+        String prompt = buildPrompt(context);
 
-        System.out.println("===== PROMPT =====");
-        System.out.println(prompt);
+        //System.out.println("===== PROMPT =====");
+        //System.out.println(prompt);
 
         String aiResponse = openAiService.generate(prompt);
-
-        System.out.println("===== RAW AI RESPONSE =====");
-        System.out.println(aiResponse);
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode root = objectMapper.readTree(aiResponse);
@@ -133,18 +129,48 @@ public class ResumeService {
                 .path("message")
                 .path("content").asString();
 
-        System.out.println("===== Text Obtained From Json =====");
-        System.out.println(content);
+        //System.out.println("===== Text Obtained From Json =====");
+        //System.out.println(content);
+        Resume resume = new Resume();
+        resume.setJobId(jobId);
+        resume.setGeneratedContent(content);
+        resume.setMatchScore(null);
+        resume.setPdfFilePath(null);
+
+        resumeMapper.insert(resume);
 
         return content;
     }
 
-    private String buildPrompt(Job job,
-                               Profile profile,
-                               List<Experience> experiences,
-                               List<Education> educations,
-                               List<Project> projects,
-                               List<Skill> skills) {
+    private ResumeGenerationContext fetchResumeContext(Long jobId) {
+        Job job = jobMapper.findById(jobId);
+        if (job == null) {
+            throw new ResourceNotFoundException("Job not found");
+        }
+
+        Profile profile = profileMapper.findByUserId(job.getUserId());
+        if (profile == null) {
+            throw new ResourceNotFoundException("Profile not found for user id: " + job.getUserId());
+        }
+
+        ResumeGenerationContext context = new ResumeGenerationContext();
+        context.setJob(job);
+        context.setProfile(profile);
+        context.setExperiences(experienceMapper.findByProfileId(profile.getId()));
+        context.setEducations(educationMapper.findByProfileId(profile.getId()));
+        context.setProjects(projectMapper.findByProfileId(profile.getId()));
+        context.setSkills(skillMapper.findByProfileId(profile.getId()));
+
+        return context;
+    }
+
+    private String buildPrompt(ResumeGenerationContext context) {
+        Job job = context.getJob();
+        Profile profile = context.getProfile();
+        List<Experience> experiences = context.getExperiences();
+        List<Education> educations = context.getEducations();
+        List<Project> projects = context.getProjects();
+        List<Skill> skills = context.getSkills();
 
         StringBuilder sb = new StringBuilder();
 

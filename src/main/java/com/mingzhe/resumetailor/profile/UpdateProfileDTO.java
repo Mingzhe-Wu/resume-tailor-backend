@@ -4,6 +4,10 @@ import lombok.Data;
 
 // DTO for profile update
 // fullName, and contactEmail required
+
+/**
+ * Request body used when updating Profile records.
+ */
 @Data
 public class UpdateProfileDTO {
 

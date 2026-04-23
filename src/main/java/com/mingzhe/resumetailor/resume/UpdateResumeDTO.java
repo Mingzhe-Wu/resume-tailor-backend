@@ -2,6 +2,9 @@ package com.mingzhe.resumetailor.resume;
 
 import lombok.Data;
 
+/**
+ * Request body used when updating Resume records.
+ */
 @Data
 public class UpdateResumeDTO {
 

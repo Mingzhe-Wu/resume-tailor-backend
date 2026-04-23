@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * Request body used when creating Job records.
+ */
 @Data
 public class CreateJobDTO {
 

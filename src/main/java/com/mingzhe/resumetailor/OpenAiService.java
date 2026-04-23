@@ -8,6 +8,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Calls the OpenAI chat completion API to generate resume content.
+ */
 @Service
 public class OpenAiService {
 

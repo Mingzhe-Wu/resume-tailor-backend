@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Business logic for validating and managing Skill records.
+ */
 @Service
 public class SkillService {
 

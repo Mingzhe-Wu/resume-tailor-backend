@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.util.Map;
 
+/**
+ * Represents the JSON body returned for API errors.
+ */
 @Data
 @AllArgsConstructor
 public class ErrorResponse {

@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * Request body used when updating Job records.
+ */
 @Data
 public class UpdateJobDTO {
 

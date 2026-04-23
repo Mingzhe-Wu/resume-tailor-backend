@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Business logic for validating and managing Experience records.
+ */
 @Service
 public class ExperienceService {
 

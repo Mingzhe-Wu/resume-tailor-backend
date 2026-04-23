@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+/**
+ * Request body used when updating Experience records.
+ */
 @Data
 public class UpdateExperienceDTO {
 

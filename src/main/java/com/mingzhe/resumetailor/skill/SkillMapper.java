@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
+/**
+ * MyBatis mapper for Skill database operations.
+ */
 @Mapper
 public interface SkillMapper {
 

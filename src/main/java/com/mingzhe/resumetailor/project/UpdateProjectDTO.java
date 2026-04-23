@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+/**
+ * Request body used when updating Project records.
+ */
 @Data
 public class UpdateProjectDTO {
 

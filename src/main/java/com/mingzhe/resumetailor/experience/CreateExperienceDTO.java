@@ -6,6 +6,9 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+/**
+ * Request body used when creating Experience records.
+ */
 @Data
 public class CreateExperienceDTO {
 

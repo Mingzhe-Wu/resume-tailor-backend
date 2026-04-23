@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents User data in the application.
+ */
 @Data
 public class User {
 

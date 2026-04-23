@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Converts application exceptions into consistent HTTP error responses.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     // Exception for non-valid arguments from DTOs
