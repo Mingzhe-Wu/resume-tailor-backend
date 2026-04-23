@@ -119,11 +119,7 @@ public class ResumeService {
         System.out.println("===== PROMPT =====");
         System.out.println(prompt);
 
-        // call OpenAi api to generate a response
-        String aiResponse = openAiService.generate(prompt);
-
-        // validate the response
-        validateGeneratedResume(aiResponse);
+        String aiResponse = callLlmWithRetry(prompt);
 
         // construct resume and save to database
         Resume resume = new Resume();
@@ -135,6 +131,42 @@ public class ResumeService {
         resumeMapper.insert(resume);
 
         return aiResponse;
+    }
+
+    private String callLlmWithRetry(String prompt) {
+        int maxAttempts = 3;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                System.out.println("===== LLM ATTEMPT " + attempt + " =====");
+
+                // call OpenAi api to generate a response
+                String aiResponse = openAiService.generate(prompt);
+
+                // validate the response
+                validateGeneratedResume(aiResponse);
+
+                System.out.println("===== LLM ATTEMPT " + attempt + " SUCCEEDED =====");
+                return aiResponse;
+
+            } catch (Exception e) {
+                System.out.println("===== LLM ATTEMPT " + attempt + " FAILED =====");
+                System.out.println("Reason: " + e.getMessage());
+
+                if (attempt == maxAttempts) {
+                    throw new RuntimeException("Resume generation failed after " + maxAttempts + " attempts", e);
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Retry interrupted", ie);
+                }
+            }
+        }
+
+        throw new RuntimeException("Unexpected retry failure");
     }
 
     private String getContentFromJson(String rawJson) {
