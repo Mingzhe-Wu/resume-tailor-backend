@@ -20,6 +20,8 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Business logic for validating and managing Resume records.
@@ -36,6 +38,12 @@ public class ResumeService {
     private final ResumeMapper resumeMapper;
 
     private final OpenAiService openAiService;
+
+    private final Map<String, String> resumeCache = new ConcurrentHashMap<>();
+
+    private String buildCacheKey(Long jobId, Long profileId) {
+        return jobId + "_" + profileId;
+    }
 
     public ResumeService(JobMapper jobMapper, ProfileMapper profileMapper, ExperienceMapper experienceMapper, EducationMapper educationMapper, ProjectMapper projectMapper, SkillMapper skillMapper, ResumeMapper resumeMapper, OpenAiService openAiService) {
         this.jobMapper = jobMapper;
@@ -114,12 +122,25 @@ public class ResumeService {
         // fetch resume context with given job id
         ResumeGenerationContext context = fetchResumeContext(jobId);
 
+        // build cache key to check if resume already exists in the memory cache
+        Long profileId = context.getProfile().getId();
+        String cacheKey = buildCacheKey(jobId, profileId);
+
+        if (resumeCache.containsKey(cacheKey)) {
+            System.out.println("===== CACHE HIT =====");
+            return resumeCache.get(cacheKey);
+        }
+
         // build structured prompt for calling OpenAI api with the context
         String prompt = buildPrompt(context);
         System.out.println("===== PROMPT =====");
         System.out.println(prompt);
 
+        // call OpenAi api up to three times to generate resume
         String aiResponse = callLlmWithRetry(prompt);
+
+        // store the response in cache if first time generated
+        resumeCache.put(cacheKey, aiResponse);
 
         // construct resume and save to database
         Resume resume = new Resume();
