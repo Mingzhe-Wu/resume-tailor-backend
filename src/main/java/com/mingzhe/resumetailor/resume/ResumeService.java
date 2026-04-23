@@ -111,35 +111,40 @@ public class ResumeService {
     }
 
     public String generateResume(Long jobId) {
-        // use
+        // fetch resume context with given job id
         ResumeGenerationContext context = fetchResumeContext(jobId);
 
+        // build structured prompt for calling OpenAI api with the context
         String prompt = buildPrompt(context);
+        System.out.println("===== PROMPT =====");
+        System.out.println(prompt);
 
-        //System.out.println("===== PROMPT =====");
-        //System.out.println(prompt);
-
+        // call OpenAi api to generate a response
         String aiResponse = openAiService.generate(prompt);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode root = objectMapper.readTree(aiResponse);
+        // validate the response
+        validateGeneratedResume(aiResponse);
 
-        String content = root.path("choices")
-                .get(0)
-                .path("message")
-                .path("content").asString();
-
-        //System.out.println("===== Text Obtained From Json =====");
-        //System.out.println(content);
+        // construct resume and save to database
         Resume resume = new Resume();
         resume.setJobId(jobId);
-        resume.setGeneratedContent(content);
+        resume.setGeneratedContent(aiResponse);
         resume.setMatchScore(null);
         resume.setPdfFilePath(null);
 
         resumeMapper.insert(resume);
 
-        return content;
+        return aiResponse;
+    }
+
+    private String getContentFromJson(String rawJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root = objectMapper.readTree(rawJson);
+
+        return root.path("choices")
+                .get(0)
+                .path("message")
+                .path("content").asString();
     }
 
     private ResumeGenerationContext fetchResumeContext(Long jobId) {
@@ -232,6 +237,30 @@ public class ResumeService {
         sb.append("Use strong action verbs and resume-style bullet points.\n");
 
         return sb.toString();
+    }
+
+    public void validateGeneratedResume(String content) {
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("Generated resume is empty");
+        }
+
+        if (content.length() < 100) {
+            throw new IllegalArgumentException("Generated resume is too short");
+        }
+
+        String lower = content.toLowerCase();
+
+        if (lower.contains("i'm sorry") || lower.contains("cannot help with")) {
+            throw new IllegalArgumentException("Generated resume contains failure-like text");
+        }
+
+        boolean hasExperience = lower.contains("experience");
+        boolean hasProject = lower.contains("project");
+        boolean hasSkills = lower.contains("skills");
+
+        if ((!hasExperience && !hasProject) || !hasSkills) {
+            throw new IllegalArgumentException("Generated resume is missing expected sections");
+        }
     }
 
 }

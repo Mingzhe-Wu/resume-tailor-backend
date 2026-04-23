@@ -1,6 +1,8 @@
 package com.mingzhe.resumetailor;
 
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -54,7 +56,15 @@ public class OpenAiService {
                 response.append(line);
             }
 
-            return response.toString();
+            String aiResponseRaw = response.toString();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(aiResponseRaw);
+
+            return root.path("choices")
+                    .get(0)
+                    .path("message")
+                    .path("content").asString();
 
         } catch (Exception e) {
             e.printStackTrace();
