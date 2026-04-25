@@ -15,10 +15,10 @@ import com.mingzhe.resumetailor.project.Project;
 import com.mingzhe.resumetailor.project.ProjectMapper;
 import com.mingzhe.resumetailor.skill.Skill;
 import com.mingzhe.resumetailor.skill.SkillMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -39,6 +39,8 @@ public class ResumeService {
     private final ResumeMapper resumeMapper;
 
     private final OpenAiService openAiService;
+
+    private static final Logger log = LoggerFactory.getLogger(ResumeService.class);
 
     private final Map<String, String> resumeCache = new ConcurrentHashMap<>();
 
@@ -121,12 +123,14 @@ public class ResumeService {
 
     @Async
     public void generateResumeAsync(Long jobId) {
-        System.out.println("===== ASYNC GENERATION STARTED =====");
-        System.out.println("Thread: " + Thread.currentThread().getName());
+        log.info("Async resume generation started for jobId={}, thread={}", jobId, Thread.currentThread().getName());
 
-        generateResume(jobId);
-
-        System.out.println("===== ASYNC GENERATION FINISHED =====");
+        try {
+            generateResume(jobId);
+            log.info("Async resume generation finished for jobId={}", jobId);
+        } catch (Exception e) {
+            log.error("Async resume generation failed for jobId={}: {}", jobId, e.getMessage(), e);
+        }
     }
 
     public String generateResume(Long jobId) {
@@ -137,9 +141,10 @@ public class ResumeService {
         Long profileId = context.getProfile().getId();
         String cacheKey = buildCacheKey(jobId, profileId);
 
-        if (resumeCache.containsKey(cacheKey)) {
-            System.out.println("===== CACHE HIT =====");
-            return resumeCache.get(cacheKey);
+        String cachedResume = resumeCache.get(cacheKey);
+        if (cachedResume != null) {
+            log.info("Cache hit for jobId={}, profileId={}", jobId, profileId);
+            return cachedResume;
         }
 
         // build structured prompt for calling OpenAI api with the context
@@ -170,7 +175,7 @@ public class ResumeService {
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                System.out.println("===== LLM ATTEMPT " + attempt + " =====");
+                log.info("LLM attempt {} started", attempt);
 
                 // call OpenAi api to generate a response
                 String aiResponse = openAiService.generate(prompt);
@@ -178,12 +183,11 @@ public class ResumeService {
                 // validate the response
                 validateGeneratedResume(aiResponse);
 
-                System.out.println("===== LLM ATTEMPT " + attempt + " SUCCEEDED =====");
+                log.info("LLM attempt {} succeeded", attempt);
                 return aiResponse;
 
             } catch (Exception e) {
-                System.out.println("===== LLM ATTEMPT " + attempt + " FAILED =====");
-                System.out.println("Reason: " + e.getMessage());
+                log.warn("LLM attempt {} failed: {}", attempt, e.getMessage());
 
                 if (attempt == maxAttempts) {
                     throw new RuntimeException("Resume generation failed after " + maxAttempts + " attempts", e);
@@ -199,16 +203,6 @@ public class ResumeService {
         }
 
         throw new RuntimeException("Unexpected retry failure");
-    }
-
-    private String getContentFromJson(String rawJson) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode root = objectMapper.readTree(rawJson);
-
-        return root.path("choices")
-                .get(0)
-                .path("message")
-                .path("content").asString();
     }
 
     private ResumeGenerationContext fetchResumeContext(Long jobId) {
