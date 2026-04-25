@@ -54,4 +54,10 @@ public class ResumeController {
         return ResponseEntity.ok(resumeService.generateResume(jobId));
     }
 
+    @PostMapping("/generate-async/{jobId}")
+    public ResponseEntity<String> generateResumeAsync(@PathVariable Long jobId) {
+        resumeService.generateResumeAsync(jobId);
+        return ResponseEntity.ok("Resume generation started asynchronously");
+    }
+
 }

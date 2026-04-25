@@ -15,6 +15,7 @@ import com.mingzhe.resumetailor.project.Project;
 import com.mingzhe.resumetailor.project.ProjectMapper;
 import com.mingzhe.resumetailor.skill.Skill;
 import com.mingzhe.resumetailor.skill.SkillMapper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -116,6 +117,16 @@ public class ResumeService {
 
     private boolean isValidMatchScore(Integer matchScore) {
         return matchScore != null && matchScore >= 0 && matchScore <= 100;
+    }
+
+    @Async
+    public void generateResumeAsync(Long jobId) {
+        System.out.println("===== ASYNC GENERATION STARTED =====");
+        System.out.println("Thread: " + Thread.currentThread().getName());
+
+        generateResume(jobId);
+
+        System.out.println("===== ASYNC GENERATION FINISHED =====");
     }
 
     public String generateResume(Long jobId) {
