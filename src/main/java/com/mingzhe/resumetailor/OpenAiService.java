@@ -16,12 +16,14 @@ import java.net.URL;
 @Service
 public class OpenAiService {
 
+    // get api key from system environment to avoid risky behaviors
     private final String apiKey = System.getenv("OPENAI_API_KEY");
 
     public String generate(String prompt) {
         try {
             URL url = new URL("https://api.openai.com/v1/chat/completions");
 
+            // configure the connection
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Authorization", "Bearer " + apiKey);
@@ -41,14 +43,17 @@ public class OpenAiService {
             }
             """.formatted(safePrompt);
 
+            // send request
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(body.getBytes());
             }
 
+            // read from response
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(conn.getInputStream())
             );
 
+            // store response in string builder
             StringBuilder response = new StringBuilder();
             String line;
 
@@ -56,6 +61,7 @@ public class OpenAiService {
                 response.append(line);
             }
 
+            // extract the content
             String aiResponseRaw = response.toString();
 
             ObjectMapper objectMapper = new ObjectMapper();

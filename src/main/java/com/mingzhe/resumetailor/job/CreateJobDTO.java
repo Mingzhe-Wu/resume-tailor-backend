@@ -25,7 +25,6 @@ public class CreateJobDTO {
 
     private String sourceUrl;
 
-    @NotNull(message = "status is required")
     private Integer status;
 
     private LocalDateTime interviewTime;

@@ -1,6 +1,5 @@
 package com.mingzhe.resumetailor.job;
 
-import com.mingzhe.resumetailor.exceptions.BadRequestException;
 import com.mingzhe.resumetailor.exceptions.ResourceNotFoundException;
 import com.mingzhe.resumetailor.user.User;
 import com.mingzhe.resumetailor.user.UserMapper;
@@ -29,13 +28,14 @@ public class JobService {
     }
 
     public Job createJob(CreateJobDTO request) {
+        // use enum to validate status if provided
+        Integer status = request.getStatus() == null ? 1 : request.getStatus();
+        JobStatus.fromCode(status);
+
+        // validate if user id exist in db
         User user = userMapper.findById(request.getUserId());
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
-        }
-
-        if (!isValidStatus(request.getStatus())) {
-            throw new BadRequestException("status must be between 1 and 5");
         }
 
         Job job = new Job();
@@ -52,6 +52,7 @@ public class JobService {
     }
 
     public List<Job> fetchJobsByUserId(Long userId) {
+        // validate if user id exist in db
         User user = userMapper.findById(userId);
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
@@ -61,13 +62,15 @@ public class JobService {
     }
 
     public Job updateJob(Long id, UpdateJobDTO request) {
+        // validate if user id exist in db
         Job existingJob = jobMapper.findById(id);
         if (existingJob == null) {
             throw new ResourceNotFoundException("Job not found");
         }
 
-        if (request.getStatus() != null && !isValidStatus(request.getStatus())) {
-            throw new BadRequestException("status must be between 1 and 5");
+        // use enum to validate status if provided
+        if (request.getStatus() != null) {
+            JobStatus.fromCode(request.getStatus());
         }
 
         Job update = new Job();
@@ -84,16 +87,13 @@ public class JobService {
     }
 
     public void deleteJob(Long id) {
+        // validate if user id exist in db
         Job existingJob = jobMapper.findById(id);
         if (existingJob == null) {
             throw new ResourceNotFoundException("Job not found");
         }
 
         jobMapper.deleteById(id);
-    }
-
-    private boolean isValidStatus(Integer status) {
-        return status != null && status >= STATUS_SAVED && status <= STATUS_REJECTED;
     }
 
 }
