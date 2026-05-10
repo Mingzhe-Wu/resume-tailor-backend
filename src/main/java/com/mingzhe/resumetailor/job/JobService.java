@@ -44,7 +44,7 @@ public class JobService {
         job.setCompany(request.getCompany());
         job.setJobDescription(request.getJobDescription());
         job.setSourceUrl(request.getSourceUrl());
-        job.setStatus(request.getStatus());
+        job.setStatus(status);
         job.setInterviewTime(request.getInterviewTime());
 
         jobMapper.insert(job);

@@ -32,7 +32,7 @@ public class UserController {
 
     @GetMapping("/fetch/{id}")
     public ResponseEntity<User> fetchUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.fetchUser(id));
+        return ResponseEntity.ok(userService.fetchUserById(id));
     }
 
     @PutMapping("/update/{id}")

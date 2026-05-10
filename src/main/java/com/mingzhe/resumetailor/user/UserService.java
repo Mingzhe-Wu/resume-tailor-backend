@@ -1,7 +1,9 @@
 package com.mingzhe.resumetailor.user;
 
+import com.mingzhe.resumetailor.auth.UserRequestDTO;
 import com.mingzhe.resumetailor.exceptions.BadRequestException;
 import com.mingzhe.resumetailor.exceptions.ResourceNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,9 +13,32 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserMapper userMapper) {
+    public UserService(UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public UserResponseDTO register(UserRequestDTO request) {
+        User existingUser = userMapper.findByEmail(request.getEmail());
+        if (existingUser != null) {
+            throw new BadRequestException("User already exists with this email");
+        }
+
+        User user = new User();
+        user.setEmail(request.getEmail());
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        user.setPassword(encodedPassword);
+
+        userMapper.insert(user);
+
+        UserResponseDTO response = new UserResponseDTO();
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
+
+        return response;
     }
 
     public User createUser(CreateUserDTO request) {
@@ -30,12 +55,20 @@ public class UserService {
         return user;
     }
 
-    public User fetchUser(Long id) {
+    public User fetchUserById(Long id) {
         User user = userMapper.findById(id);
         if (user == null) {
             throw new ResourceNotFoundException("User not found");
         }
 
+        return user;
+    }
+
+    public User fetchUserByEmail(String email) {
+        User user = userMapper.findByEmail(email);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
         return user;
     }
 
