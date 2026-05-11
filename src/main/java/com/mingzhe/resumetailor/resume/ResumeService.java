@@ -42,7 +42,9 @@ public class ResumeService {
 
     private static final Logger log = LoggerFactory.getLogger(ResumeService.class);
 
-    private final Map<String, String> resumeCache = new ConcurrentHashMap<>();
+    private static final long CACHE_TTL_MILLIS = 60_000;
+
+    private final Map<String, Long> resumeGenerateTimeCache = new ConcurrentHashMap<>();
 
     private String buildCacheKey(Long jobId, Long profileId) {
         return jobId + "_" + profileId;
@@ -79,7 +81,7 @@ public class ResumeService {
         return resume;
     }
 
-    public List<Resume> fetchResumesByJobId(Long jobId) {
+    public Resume fetchResumesByJobId(Long jobId) {
         Job job = jobMapper.findById(jobId);
         if (job == null) {
             throw new ResourceNotFoundException("Job not found");
@@ -123,11 +125,12 @@ public class ResumeService {
 
     @Async
     public void generateResumeAsync(Long jobId) {
-        log.info("Async resume generation started for jobId={}, thread={}", jobId, Thread.currentThread().getName());
+        log.info("Async resume generation started for jobId={}, thread={}",
+                jobId, Thread.currentThread().getName());
 
         try {
-            generateResume(jobId);
-            log.info("Async resume generation finished for jobId={}", jobId);
+            String result = generateResume(jobId);
+            log.info("Async resume generation finished for jobId={}, result={}", jobId, result);
         } catch (Exception e) {
             log.error("Async resume generation failed for jobId={}: {}", jobId, e.getMessage(), e);
         }
@@ -141,10 +144,13 @@ public class ResumeService {
         Long profileId = context.getProfile().getId();
         String cacheKey = buildCacheKey(jobId, profileId);
 
-        String cachedResume = resumeCache.get(cacheKey);
-        if (cachedResume != null) {
+        Long lastGeneratedAt = resumeGenerateTimeCache.get(cacheKey);
+
+        if (lastGeneratedAt != null &&
+                System.currentTimeMillis() - lastGeneratedAt < CACHE_TTL_MILLIS) {
             log.info("Cache hit for jobId={}, profileId={}", jobId, profileId);
-            return cachedResume;
+            log.info("Resume generation skipped because it was generated within 60 seconds");
+            return "Skipped";
         }
 
         // build structured prompt for calling OpenAI api with the context
@@ -155,9 +161,6 @@ public class ResumeService {
         // call OpenAi api up to three times to generate resume
         String aiResponse = callLlmWithRetry(prompt);
 
-        // store the response in cache if first time generated
-        resumeCache.put(cacheKey, aiResponse);
-
         // construct resume and save to database
         Resume resume = new Resume();
         resume.setJobId(jobId);
@@ -165,9 +168,19 @@ public class ResumeService {
         resume.setMatchScore(null);
         resume.setPdfFilePath(null);
 
-        resumeMapper.insert(resume);
+        Resume existingResume = resumeMapper.findByJobId(jobId);
 
-        return aiResponse;
+        if (existingResume == null) {
+            resumeMapper.insert(resume);
+        } else {
+            resume.setId(existingResume.getId());
+            resumeMapper.updateById(resume);
+        }
+
+        // store the response in cache if first time generated
+        resumeGenerateTimeCache.put(cacheKey, System.currentTimeMillis());
+
+        return "Resume Generated";
     }
 
     private String callLlmWithRetry(String prompt) {

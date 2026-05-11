@@ -1,13 +1,6 @@
 package com.mingzhe.resumetailor.resume;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
-
-import java.util.List;
+import org.apache.ibatis.annotations.*;
 
 /**
  * MyBatis mapper for Resume database operations.
@@ -56,9 +49,8 @@ public interface ResumeMapper {
             updated_at
         FROM resume_versions
         WHERE job_id = #{jobId}
-        ORDER BY created_at DESC, id DESC
         """)
-    List<Resume> findByJobId(Long jobId);
+    Resume findByJobId(Long jobId);
 
     @Update("""
         <script>
