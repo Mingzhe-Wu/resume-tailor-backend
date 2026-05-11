@@ -1,6 +1,7 @@
 package com.mingzhe.resumetailor.auth;
 
 import com.mingzhe.resumetailor.exceptions.BadRequestException;
+import com.mingzhe.resumetailor.security.JwtService;
 import com.mingzhe.resumetailor.user.User;
 import com.mingzhe.resumetailor.user.UserMapper;
 import com.mingzhe.resumetailor.user.UserResponseDTO;
@@ -12,12 +13,12 @@ public class AuthService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
 
-    public AuthService(UserMapper userMapper, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthService(UserMapper userMapper, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
+        this.jwtService = jwtService;
     }
 
     public LoginResponseDTO login(UserRequestDTO request) {
@@ -37,7 +38,7 @@ public class AuthService {
             throw new BadRequestException("Invalid email or password");
         }
 
-        String token = jwtUtil.generateToken(user);
+        String token = jwtService.generateToken(user);
 
         UserResponseDTO userResponse = new UserResponseDTO();
         userResponse.setId(user.getId());
