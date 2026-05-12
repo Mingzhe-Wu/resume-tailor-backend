@@ -250,64 +250,194 @@ public class ResumeService {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("You are a professional resume writer.\n");
-        sb.append("Generate a tailored resume based on the candidate information and job description.\n");
-        sb.append("Focus on the most relevant qualifications.\n\n");
+        sb.append("You are an expert software engineering resume writer.\n");
+        sb.append("Your task is to generate a tailored, ATS-friendly, one-page resume based on the candidate information and the target job description.\n");
+        sb.append("Do not simply insert keywords. Instead, identify the most important requirements in the job description and emphasize the candidate's most relevant evidence.\n");
+        sb.append("Focus on software engineering, backend engineering, AI application engineering, full-stack development, data workflow automation, or embedded systems depending on the job description.\n");
+        sb.append("Internally analyze the target job description, but do not output the analysis.\n\n");
 
-        sb.append("Job Information:\n");
-        sb.append("Title: ").append(job.getTitle()).append("\n");
-        sb.append("Company: ").append(job.getCompany()).append("\n");
-        sb.append("Description: ").append(job.getJobDescription()).append("\n\n");
+        sb.append("Target Job Information:\n");
+        appendIfPresent(sb, "Title: ", job.getTitle());
+        appendIfPresent(sb, "Company: ", job.getCompany());
+        appendBlockIfPresent(sb, "Description:", job.getJobDescription());
+        sb.append("\n");
 
         sb.append("Candidate Profile:\n");
-        sb.append("Full Name: ").append(profile.getFullName()).append("\n");
-        sb.append("Location: ").append(profile.getLocation()).append("\n");
-        sb.append("Email: ").append(profile.getContactEmail()).append("\n");
-        sb.append("Phone: ").append(profile.getPhone()).append("\n");
-        sb.append("LinkedIn: ").append(profile.getLinkedinUrl()).append("\n");
-        sb.append("GitHub: ").append(profile.getGithubUrl()).append("\n");
-        sb.append("Summary: ").append(profile.getSummary()).append("\n\n");
+        appendIfPresent(sb, "Full Name: ", profile.getFullName());
+        appendIfPresent(sb, "Location: ", profile.getLocation());
+        appendIfPresent(sb, "Email: ", profile.getContactEmail());
+        appendIfPresent(sb, "Phone: ", profile.getPhone());
+        appendIfPresent(sb, "LinkedIn: ", profile.getLinkedinUrl());
+        appendIfPresent(sb, "GitHub: ", profile.getGithubUrl());
+        appendIfPresent(sb, "Summary: ", profile.getSummary());
+        sb.append("\n");
 
-        sb.append("Experiences:\n");
-        for (Experience exp : experiences) {
-            sb.append("- Company: ").append(exp.getCompanyName()).append("\n");
-            sb.append("  Position: ").append(exp.getPosition()).append("\n");
-            sb.append("  Location: ").append(exp.getLocation()).append("\n");
-            sb.append("  Start Date: ").append(exp.getStartDate()).append("\n");
-            sb.append("  End Date: ").append(exp.getEndDate()).append("\n");
-            sb.append("  Description: ").append(exp.getDescription()).append("\n\n");
+        if (experiences != null && !experiences.isEmpty()) {
+            sb.append("Experiences:\n");
+            for (Experience exp : experiences) {
+                sb.append("- Experience\n");
+                appendIfPresent(sb, "  Company: ", exp.getCompanyName());
+                appendIfPresent(sb, "  Position: ", exp.getPosition());
+                appendIfPresent(sb, "  Location: ", exp.getLocation());
+                appendIfPresent(sb, "  Start Date: ", exp.getStartDate());
+                appendIfPresent(sb, "  End Date: ", exp.getEndDate());
+                appendIfPresent(sb, "  Description: ", exp.getDescription());
+                sb.append("\n");
+            }
         }
 
-        sb.append("Educations:\n");
-        for (Education edu : educations) {
-            sb.append("- School: ").append(edu.getSchoolName()).append("\n");
-            sb.append("  Degree: ").append(edu.getDegree()).append("\n");
-            sb.append("  Major: ").append(edu.getMajor()).append("\n");
-            sb.append("  GPA: ").append(edu.getGpa()).append("\n");
-            sb.append("  Relevant Coursework: ").append(edu.getRelevantCoursework()).append("\n");
-            sb.append("  Description: ").append(edu.getDescription()).append("\n\n");
+        if (educations != null && !educations.isEmpty()) {
+            sb.append("Educations:\n");
+            for (Education edu : educations) {
+                sb.append("- Education\n");
+                appendIfPresent(sb, "  School: ", edu.getSchoolName());
+                appendIfPresent(sb, "  Degree: ", edu.getDegree());
+                appendIfPresent(sb, "  Major: ", edu.getMajor());
+                appendIfPresent(sb, "  GPA: ", edu.getGpa());
+                appendIfPresent(sb, "  Relevant Coursework: ", edu.getRelevantCoursework());
+                appendIfPresent(sb, "  Description: ", edu.getDescription());
+                sb.append("\n");
+            }
         }
 
-        sb.append("Projects:\n");
-        for (Project project : projects) {
-            sb.append("- Project Name: ").append(project.getProjectName()).append("\n");
-            sb.append("  Tech Stack: ").append(project.getTechStack()).append("\n");
-            sb.append("  Start Date: ").append(project.getStartDate()).append("\n");
-            sb.append("  End Date: ").append(project.getEndDate()).append("\n");
-            sb.append("  Description: ").append(project.getDescription()).append("\n\n");
+        if (projects != null && !projects.isEmpty()) {
+            sb.append("Projects:\n");
+            for (Project project : projects) {
+                sb.append("- Project\n");
+                appendIfPresent(sb, "  Project Name: ", project.getProjectName());
+                appendIfPresent(sb, "  Tech Stack: ", project.getTechStack());
+                appendIfPresent(sb, "  Start Date: ", project.getStartDate());
+                appendIfPresent(sb, "  End Date: ", project.getEndDate());
+                appendIfPresent(sb, "  Description: ", project.getDescription());
+                sb.append("\n");
+            }
         }
 
-        sb.append("Skills:\n");
-        for (Skill skill : skills) {
-            sb.append("- ").append(skill.getCategory()).append(": ").append(skill.getName()).append("\n");
+        if (skills != null && !skills.isEmpty()) {
+            sb.append("Skills:\n");
+            for (Skill skill : skills) {
+                if (hasText(skill.getCategory()) && hasText(skill.getName())) {
+                    sb.append("- ")
+                            .append(skill.getCategory())
+                            .append(": ")
+                            .append(skill.getName())
+                            .append("\n");
+                } else if (hasText(skill.getName())) {
+                    sb.append("- ").append(skill.getName()).append("\n");
+                }
+            }
+            sb.append("\n");
         }
 
-        sb.append("\nInstructions:\n");
-        sb.append("Generate a concise, professional resume tailored to the job description.\n");
-        sb.append("Highlight the most relevant experience, projects, and skills.\n");
-        sb.append("Use strong action verbs and resume-style bullet points.\n");
+        sb.append("Resume Tailoring Rules:\n");
+        sb.append("- First analyze the target job description and identify the top required skills, technologies, responsibilities, and role type.\n");
+        sb.append("- Tailor the resume by prioritizing the most relevant experience, projects, skills, and technologies.\n");
+        sb.append("- Important job keywords should appear not only in the Skills section, but also in Experience or Projects when supported by the candidate data.\n");
+        sb.append("- It is acceptable to omit less relevant projects, skills, or details to preserve one-page focus.\n");
+        sb.append("- Exclude any fields with null, empty, or missing values from the resume content; never output the literal text 'null'.\n");
+        sb.append("- Prefer technical credibility over aggressive keyword stuffing.\n");
+        sb.append("- Do not fabricate technologies, metrics, scale, leadership, employment history, certifications, or achievements that are not supported by the provided candidate information.\n");
+        sb.append("- Do not exaggerate the candidate's frontend, AI, cloud, leadership, or production-scale experience beyond the provided data.\n");
+        sb.append("- Preserve the candidate's actual level of experience; do not make internship, academic, or personal project experience sound like senior-level production ownership.\n");
+        sb.append("- When the candidate data is vague, use conservative wording and avoid converting vague notes into specific achievements unless explicitly supported.\n\n");
+
+        sb.append("Role-Specific Emphasis Rules:\n");
+        sb.append("- For backend or platform engineering roles, emphasize Java, Spring Boot, REST APIs, MyBatis, MySQL, authentication, validation, debugging, reliability, service architecture, and database-backed workflows.\n");
+        sb.append("- For AI application or LLM integration roles, emphasize OpenAI API integration, prompt orchestration, structured data aggregation, response validation, JSON processing, and persistence of generated outputs.\n");
+        sb.append("- For full-stack roles, emphasize React, Axios, API integration, frontend-backend communication, form workflows, and authentication state management only when supported by the candidate data.\n");
+        sb.append("- For embedded, robotics, or hardware-related roles, emphasize sensor processing, PID control, embedded systems, PCB design, hardware-software integration, and iterative debugging.\n");
+        sb.append("- For data, business systems, or operations roles, emphasize automation, data processing, Excel VBA, reporting workflows, documentation, reconciliation, and cross-functional coordination.\n\n");
+
+        sb.append("Resume Style Reference:\n");
+        sb.append("- Strong resume bullets are concise, technically specific, accomplishment-oriented, and focused on engineering impact.\n");
+        sb.append("- Preferred writing style emphasizes technical implementation, system context, debugging, validation, reliability, automation, and workflow improvement.\n");
+        sb.append("- Good bullets often combine: action verb + technical contribution + tools/systems + engineering or business purpose.\n");
+        sb.append("- Maintain a professional new graduate software engineering tone instead of exaggerated startup-founder or senior-engineer language.\n");
+        sb.append("- Avoid repetitive sentence structures or overusing identical action verbs across all bullets.\n\n");
+
+        sb.append("Experience and Project Writing Rules:\n");
+        sb.append("- Use accomplishment-oriented bullet points instead of paragraphs.\n");
+        sb.append("- Begin each bullet with a strong action verb such as Developed, Designed, Implemented, Built, Optimized, Integrated, Automated, Diagnosed, Validated, Streamlined, Debugged, or Orchestrated.\n");
+        sb.append("- Each bullet should follow this style when possible: Action Verb + Technical Work + Tools/Systems + Purpose or Impact.\n");
+        sb.append("- Prefer concrete technical details over vague soft skills.\n");
+        sb.append("- Use past tense for completed roles and projects.\n");
+        sb.append("- Avoid weak phrases such as Responsible for, Worked on, Helped with, Participated in, or Familiar with.\n");
+        sb.append("- If an experience or project description is brief, improve wording using only the provided facts, technologies, domain, and job-relevant context.\n");
+        sb.append("- Do not invent unsupported tools, scale, metrics, responsibilities, or business outcomes.\n");
+        sb.append("- When possible, transform rough descriptions into polished resume bullets by clarifying the action, technical implementation, system context, and business or engineering purpose.\n");
+        sb.append("- Convert rough notes into professional bullet points using this pattern: Action Verb + Technical Contribution + Tools/Systems + Purpose or Impact.\n");
+        sb.append("- Example: 'built backend API for category' may become 'Developed backend APIs for category management workflows, supporting structured data retrieval, filtering, and validation.' only if the related facts are supported by the candidate data.\n\n");
+
+        sb.append("Skills Section Rules:\n");
+        sb.append("- Reorder and group skills to match the target job description.\n");
+        sb.append("- Only include skills supported by the candidate information.\n");
+        sb.append("- For software engineering roles, prefer categories such as Languages, Backend, Frontend, AI / Integration, Tools, and Systems & Hardware.\n");
+        sb.append("- Prioritize job-relevant skills near the beginning of each category.\n");
+        sb.append("- Do not include unrelated or unsupported buzzwords.\n\n");
+
+        sb.append("Required Resume Structure:\n");
+        sb.append("FULL NAME\n");
+        sb.append("Location | Email | Phone | LinkedIn | GitHub\n\n");
+        sb.append("EDUCATION\n");
+        sb.append("School Name — Degree, Major\n");
+        sb.append("Location | Dates | GPA if available\n");
+        sb.append("- Relevant coursework or academic details only if useful for the target role\n\n");
+        sb.append("EXPERIENCE\n");
+        sb.append("Company Name — Position\n");
+        sb.append("Location | Dates\n");
+        sb.append("- Bullet point\n");
+        sb.append("- Bullet point\n\n");
+        sb.append("PROJECTS\n");
+        sb.append("Project Name — Tech Stack\n");
+        sb.append("Dates if available\n");
+        sb.append("- Bullet point\n");
+        sb.append("- Bullet point\n\n");
+        sb.append("SKILLS\n");
+        sb.append("Languages: ...\n");
+        sb.append("Backend: ...\n");
+        sb.append("Frontend: ...\n");
+        sb.append("AI / Integration: ...\n");
+        sb.append("Tools: ...\n");
+        sb.append("Systems & Hardware: ...\n\n");
+
+        sb.append("Length and Formatting Rules:\n");
+        sb.append("- Target total resume length: 400-500 words.\n");
+        sb.append("- Do not exceed 550 words.\n");
+        sb.append("- Keep the resume suitable for a one-page new graduate software engineering resume.\n");
+        sb.append("- Use clear section headings: EDUCATION, EXPERIENCE, PROJECTS, SKILLS.\n");
+        sb.append("- Use reverse chronological order within Experience and Education.\n");
+        sb.append("- Use 2-5 bullet points per major experience or project.\n");
+        sb.append("- Use fewer bullets for less relevant experiences or projects.\n");
+        sb.append("- Keep most bullet points around 20-35 words.\n");
+        sb.append("- Do not include references, personal demographic information, or a long professional summary.\n");
+        sb.append("- Do not use markdown tables.\n");
+        sb.append("- Do not include placeholder text.\n\n");
+
+        sb.append("Output Requirements:\n");
+        sb.append("- Output only the final resume content.\n");
+        sb.append("- Do not explain your reasoning.\n");
+        sb.append("- Do not output the job description analysis.\n");
+        sb.append("- Do not include markdown tables.\n");
+        sb.append("- Do not include placeholder text.\n");
+        sb.append("- Preserve accurate candidate contact information.\n");
 
         return sb.toString();
+    }
+
+    private void appendIfPresent(StringBuilder sb, String label, Object value) {
+        if (value != null && hasText(String.valueOf(value))) {
+            sb.append(label).append(value).append("\n");
+        }
+    }
+
+    private void appendBlockIfPresent(StringBuilder sb, String label, Object value) {
+        if (value != null && hasText(String.valueOf(value))) {
+            sb.append(label).append("\n").append(value).append("\n");
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank() && !"null".equalsIgnoreCase(value.trim());
     }
 
     public void validateGeneratedResume(String content) {
