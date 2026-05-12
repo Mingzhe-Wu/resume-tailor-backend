@@ -42,7 +42,7 @@ public class ResumeService {
 
     private static final Logger log = LoggerFactory.getLogger(ResumeService.class);
 
-    private static final long CACHE_TTL_MILLIS = 60_000;
+    private static final long CACHE_TTL_MILLIS = 300_000;
 
     private final Map<String, Long> resumeGenerateTimeCache = new ConcurrentHashMap<>();
 
