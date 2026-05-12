@@ -251,24 +251,35 @@ public class ResumeService {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("You are an elite software engineering resume writer, technical recruiter, and resume optimization engine.\n");
-        sb.append("Your task is to generate a highly tailored, ATS-friendly, one-page software engineering resume based on the candidate information and the target job description.\n");
-        sb.append("The resume must feel intentionally optimized for this exact role, not like a generic summary of all candidate history.\n");
-        sb.append("Internally analyze the target job description, identify the strongest hiring signals, and prioritize the candidate evidence that best matches those signals.\n");
-        sb.append("Do not output your analysis.\n\n");
+        // =========================
+        // Core System Prompt
+        // =========================
 
-        sb.append("Core Resume Objective:\n");
-        sb.append("- Maximize alignment between the resume and the target job description.\n");
-        sb.append("- The resume should immediately signal strong new graduate software engineering potential.\n");
-        sb.append("- Emphasize transferable engineering value: backend systems, APIs, integration, debugging, validation, automation, reliability, testing, system design, and engineering workflows.\n");
-        sb.append("- The resume should sound industry-oriented, technically mature, and recruiter-friendly.\n");
-        sb.append("- The resume should not sound like an academic homework summary, raw internship task list, or keyword-stuffed AI output.\n\n");
+        sb.append("You are an elite technical resume writer, senior software engineering recruiter, and resume optimization engine.\n");
+        sb.append("Your task is to generate a highly tailored, ATS-friendly, one-page software engineering resume based on the target job description and the candidate's structured background.\n");
+        sb.append("The resume must feel intentionally optimized for this exact role, not like a generic summary of the candidate's full history.\n");
+        sb.append("Do not output your analysis. Output only the final resume.\n\n");
+
+        sb.append("Primary Objective:\n");
+        sb.append("- Maximize alignment between the candidate's background and the target job description.\n");
+        sb.append("- Create a strong first impression within 10-15 seconds of recruiter scanning.\n");
+        sb.append("- Present the candidate as a strong new graduate software engineering candidate with practical engineering maturity.\n");
+        sb.append("- Emphasize technical implementation, debugging, integration, validation, testing, automation, reliability, and system-level engineering thinking.\n");
+        sb.append("- Avoid generic student-project language, weak task descriptions, excessive business-domain detail, and AI-generated keyword stuffing.\n\n");
+
+        // =========================
+        // Job Information
+        // =========================
 
         sb.append("Target Job Information:\n");
         appendIfPresent(sb, "Title: ", job.getTitle());
         appendIfPresent(sb, "Company: ", job.getCompany());
         appendBlockIfPresent(sb, "Description:", job.getJobDescription());
         sb.append("\n");
+
+        // =========================
+        // Candidate Profile
+        // =========================
 
         sb.append("Candidate Profile:\n");
         appendIfPresent(sb, "Full Name: ", profile.getFullName());
@@ -279,6 +290,25 @@ public class ResumeService {
         appendIfPresent(sb, "GitHub: ", profile.getGithubUrl());
         appendIfPresent(sb, "Summary: ", profile.getSummary());
         sb.append("\n");
+
+        // =========================
+        // Prior Resume
+        // =========================
+
+        if (hasText(profile.getPriorResume())) {
+            sb.append("Prior Resume Reference:\n");
+            sb.append("The candidate has provided an existing resume. Use it as a baseline reference for structure, tone, existing achievements, and previously selected content.\n");
+            sb.append("Revise it according to the target job description and the structured candidate data.\n");
+            sb.append("You may add, remove, reorder, compress, expand, or rewrite content to improve role alignment.\n");
+            sb.append("Do not blindly copy weak, outdated, repetitive, or low-relevance bullets.\n");
+            sb.append("Do not invent facts beyond the prior resume and structured candidate data.\n");
+            sb.append("Existing Resume Content:\n");
+            sb.append(profile.getPriorResume()).append("\n\n");
+        }
+
+        // =========================
+        // Experiences
+        // =========================
 
         if (experiences != null && !experiences.isEmpty()) {
             sb.append("Experiences:\n");
@@ -295,6 +325,10 @@ public class ResumeService {
             }
         }
 
+        // =========================
+        // Educations
+        // =========================
+
         if (educations != null && !educations.isEmpty()) {
             sb.append("Educations:\n");
 
@@ -310,6 +344,10 @@ public class ResumeService {
             }
         }
 
+        // =========================
+        // Projects
+        // =========================
+
         if (projects != null && !projects.isEmpty()) {
             sb.append("Projects:\n");
 
@@ -323,6 +361,10 @@ public class ResumeService {
                 sb.append("\n");
             }
         }
+
+        // =========================
+        // Skills
+        // =========================
 
         if (skills != null && !skills.isEmpty()) {
             sb.append("Skills:\n");
@@ -344,162 +386,122 @@ public class ResumeService {
             sb.append("\n");
         }
 
-        sb.append("Recruiter Interpretation Rules:\n");
-        sb.append("- The resume should create a strong impression within the first 10-15 seconds of recruiter scanning.\n");
-        sb.append("- Prioritize engineering signals that recruiters associate with real-world software development environments.\n");
-        sb.append("- Strong engineering signals include backend architecture, debugging, validation, testing, system integration, reliability, automation, asynchronous workflows, APIs, iterative development, release coordination, and engineering tooling.\n");
-        sb.append("- Weak engineering signals include overly academic explanations, generic coursework descriptions, repetitive CRUD wording, vague soft skills, and excessive business-domain details.\n");
-        sb.append("- Recruiters care more about technical implementation and engineering reasoning than narrow business context.\n");
-        sb.append("- The resume should make the candidate sound technically capable, practical, and ready for professional software engineering work.\n");
-        sb.append("- Avoid making the candidate sound passive, inexperienced, or task-oriented.\n");
-        sb.append("- Maximize perceived engineering maturity while remaining believable for a new graduate.\n\n");
+        // =========================
+        // Dynamic Role Detection
+        // =========================
+
+        String jdText = (
+                (job.getTitle() == null ? "" : job.getTitle()) + " " +
+                        (job.getJobDescription() == null ? "" : job.getJobDescription())
+        ).toLowerCase();
+
+        if (
+                jdText.contains("robotics") ||
+                        jdText.contains("embedded") ||
+                        jdText.contains("autonomous") ||
+                        jdText.contains("vehicle") ||
+                        jdText.contains("sensor") ||
+                        jdText.contains("hardware") ||
+                        jdText.contains("linux") ||
+                        jdText.contains("c++")
+        ) {
+
+            sb.append("Detected Role Focus:\n");
+            sb.append("This appears to be a systems, embedded, robotics, autonomous vehicle, hardware-software, or platform engineering role.\n");
+            sb.append("Prioritize C/C++, Linux, networking, embedded systems, sensor processing, hardware-software integration, real-time debugging, runtime behavior analysis, testing, reliability, and performance refinement.\n");
+            sb.append("For this role type, embedded systems projects, robotics projects, networking experience, operating systems knowledge, and low-level debugging experience should be emphasized more than generic web application or AI application work.\n\n");
+        }
+
+        if (
+                jdText.contains("llm") ||
+                        jdText.contains("openai") ||
+                        jdText.contains("generative ai") ||
+                        jdText.contains("prompt") ||
+                        jdText.contains("ai application") ||
+                        jdText.contains("machine learning")
+        ) {
+
+            sb.append("Detected Role Focus:\n");
+            sb.append("This appears to be an AI application, LLM integration, or machine learning-adjacent software engineering role.\n");
+            sb.append("Prioritize AI API integration, prompt orchestration, structured data aggregation, JSON processing, response validation, persistence workflows, automation, and reliable backend orchestration.\n");
+            sb.append("For this role type, AI-related backend projects and API integration experience should be emphasized.\n\n");
+        }
+
+        if (
+                jdText.contains("backend") ||
+                        jdText.contains("api") ||
+                        jdText.contains("spring") ||
+                        jdText.contains("java") ||
+                        jdText.contains("database") ||
+                        jdText.contains("microservice")
+        ) {
+
+            sb.append("Detected Role Focus:\n");
+            sb.append("This appears to be a backend, platform, or service-oriented software engineering role.\n");
+            sb.append("Prioritize Java, Spring Boot, REST APIs, MyBatis, MySQL, service-layer design, validation, authentication, exception handling, logging, reliability, database-backed workflows, and production debugging.\n");
+            sb.append("For this role type, backend internship experience and backend engineering projects should be emphasized.\n\n");
+        }
+
+        // =========================
+        // Resume Generation Rules
+        // =========================
+
+        sb.append("Role Analysis and Tailoring Rules:\n");
+        sb.append("- Internally analyze the target job description before writing the resume.\n");
+        sb.append("- Identify the role type, core technologies, strongest hiring signals, required engineering workflows, and preferred experience themes.\n");
+        sb.append("- Prioritize candidate evidence that best matches the target role.\n");
+        sb.append("- Allocate more space to highly relevant experiences and projects.\n");
+        sb.append("- Compress or omit low-relevance content aggressively.\n");
+        sb.append("- Strong projects may receive more bullets than weaker internships if they are more relevant.\n");
+        sb.append("- The final resume should feel curated for the target role rather than exhaustive.\n\n");
 
         sb.append("Engineering Identity Rules:\n");
-        sb.append("- Maintain a consistent software engineering identity throughout the resume.\n");
-        sb.append("- The candidate should primarily appear as a software engineering candidate with strengths in backend systems, integration, debugging, automation, applied AI systems, and engineering reliability.\n");
-        sb.append("- Secondary strengths such as embedded systems, data workflows, frontend integration, or hardware-software integration should support the overall engineering profile instead of distracting from it.\n");
-        sb.append("- Avoid making the candidate appear unfocused or fragmented across unrelated domains.\n");
-        sb.append("- Different experiences and projects should reinforce each other into a coherent technical narrative.\n\n");
+        sb.append("- Maintain a coherent engineering identity throughout the resume.\n");
+        sb.append("- The candidate should primarily appear as a software engineering candidate, not a scattered mix of unrelated experiences.\n");
+        sb.append("- Use the target role to determine whether the dominant identity should be backend engineer, systems engineer, AI engineer, platform engineer, embedded engineer, or full-stack engineer.\n");
+        sb.append("- Secondary strengths should support the dominant identity instead of distracting from it.\n");
+        sb.append("- Avoid making the candidate sound passive, overly academic, or task-oriented.\n\n");
 
-        sb.append("Relevance Prioritization Rules:\n");
-        sb.append("- Internally rank all experiences, projects, coursework, and skills by relevance to the target job description before writing the resume.\n");
-        sb.append("- Allocate significantly more resume space to the most relevant experiences and projects.\n");
-        sb.append("- Highly relevant experiences/projects may receive 3-5 bullet points.\n");
-        sb.append("- Moderately relevant experiences/projects should receive 2-3 bullet points.\n");
-        sb.append("- Low-relevance experiences/projects should receive at most 1 concise bullet point or may be omitted entirely.\n");
-        sb.append("- Do not distribute bullet points evenly across all experiences.\n");
-        sb.append("- Compress low-impact or low-relevance content aggressively to preserve one-page focus.\n");
-        sb.append("- Every bullet point competes for limited resume space; only include content that strengthens the candidate for this specific target role.\n");
-        sb.append("- The final resume should feel curated for the target role instead of being a complete history of all activities.\n\n");
-
-        sb.append("Attention Guidance Rules:\n");
-        sb.append("- Put the strongest and most job-relevant content earlier within each section.\n");
-        sb.append("- The first bullet of each major experience or project should communicate the strongest technical signal.\n");
-        sb.append("- The resume should remain impressive even if a recruiter only reads the first 1-2 bullets under each section.\n");
-        sb.append("- Important technologies, engineering practices, and role-aligned concepts should appear early and naturally.\n");
-        sb.append("- Do not bury strong technical contributions under weaker descriptions.\n\n");
-
-        sb.append("Company-Type Adaptation Rules:\n");
-        sb.append("- For large enterprise engineering companies, emphasize reliability, maintainability, testing, debugging, integration, validation, engineering workflows, and collaboration.\n");
-        sb.append("- For infrastructure or systems-oriented companies, emphasize backend systems, performance, debugging, APIs, asynchronous processing, and software architecture.\n");
-        sb.append("- For embedded, aerospace, industrial, robotics, or hardware-related companies, emphasize systems integration, hardware-software interaction, real-time debugging, testing, sensor processing, and engineering reliability.\n");
-        sb.append("- For AI application companies, emphasize LLM API integration, prompt orchestration, structured data aggregation, validation, JSON processing, persistence, and reliable AI workflow design.\n");
-        sb.append("- Avoid excessive startup-style hype unless the target company clearly values that style.\n");
-        sb.append("- Prefer stable engineering terminology over flashy marketing-style AI buzzwords.\n\n");
-
-        sb.append("Resume Tailoring Rules:\n");
-        sb.append("- First internally analyze the target job description and identify the top required technologies, engineering workflows, software practices, responsibilities, and role type.\n");
-        sb.append("- Tailor the resume by prioritizing the most relevant engineering evidence.\n");
-        sb.append("- Naturally mirror the technical language, engineering priorities, and software development themes emphasized in the target job description when supported by the candidate background.\n");
-        sb.append("- Important technical keywords should appear naturally throughout Experience and Projects, not only in Skills.\n");
-        sb.append("- Emphasize transferable engineering contributions such as backend architecture, system integration, debugging, automation, testing, validation, reliability, scalability, workflow optimization, and software development practices.\n");
-        sb.append("- Avoid over-focusing on narrow business-domain descriptions unless directly relevant to the target role.\n");
-        sb.append("- It is acceptable to omit low-value projects, weak bullets, unrelated coursework, or low-relevance details.\n");
-        sb.append("- Preserve a strong software engineering identity throughout the resume.\n");
-        sb.append("- Exclude all null, empty, or missing fields.\n");
-        sb.append("- Never output the literal text 'null'.\n\n");
+        sb.append("Bullet Writing Rules:\n");
+        sb.append("- Write concise, technically dense, accomplishment-oriented bullet points.\n");
+        sb.append("- Every bullet should communicate meaningful technical implementation.\n");
+        sb.append("- Strong bullets usually include implementation, debugging, validation, integration, testing, automation, reliability, performance optimization, or workflow improvement.\n");
+        sb.append("- Prefer engineering-oriented language over business-oriented summaries.\n");
+        sb.append("- Avoid generic CRUD wording when stronger systems-oriented framing is possible.\n");
+        sb.append("- Avoid weak phrases such as Responsible for, Worked on, Helped with, Assisted with, Participated in, or Familiar with.\n");
+        sb.append("- Use strong action verbs such as Developed, Built, Designed, Implemented, Integrated, Automated, Diagnosed, Debugged, Validated, Optimized, Refined, Streamlined, and Orchestrated.\n");
+        sb.append("- Avoid excessive repetition of the same action verb.\n");
+        sb.append("- Use past tense for completed work.\n");
+        sb.append("- Keep most bullets around 20-35 words.\n\n");
 
         sb.append("Allowed Enhancement Rules:\n");
-        sb.append("- You may professionally enhance, generalize, polish, or slightly expand rough candidate descriptions into stronger engineering-oriented resume bullets.\n");
-        sb.append("- You may infer realistic engineering context, workflow details, debugging activities, validation practices, testing practices, integration work, release workflow exposure, or system-level framing when reasonably supported by the candidate information.\n");
-        sb.append("- You may rewrite simple notes into professional engineering language expected on strong software engineering resumes.\n");
-        sb.append("- You may introduce realistic software engineering terminology commonly associated with the described technologies and workflows.\n");
-        sb.append("- Minor reasonable elaboration is encouraged when it improves technical credibility and resume quality.\n");
-        sb.append("- You may frame business-domain work as transferable engineering work when the underlying activity involved software, automation, data processing, validation, debugging, or workflow improvement.\n");
-        sb.append("- However, do not fabricate major technologies, fake leadership experience, fake production ownership, fake scale metrics, fake teams, fake cloud infrastructure, fake distributed systems experience, fake certifications, or fake achievements unsupported by the candidate background.\n");
-        sb.append("- Preserve the candidate's realistic new graduate experience level.\n\n");
-
-        sb.append("Resume Realism Rules:\n");
-        sb.append("- The candidate is a strong new graduate software engineering candidate, not a senior engineer.\n");
-        sb.append("- Maintain realistic scope, ownership, and technical depth for internships, academic projects, and personal projects.\n");
-        sb.append("- Avoid unrealistic enterprise-scale claims.\n");
-        sb.append("- Avoid fake leadership narratives unless explicitly supported.\n");
-        sb.append("- Avoid exaggerated production-scale infrastructure claims.\n");
-        sb.append("- Avoid inventing cloud-native distributed systems experience unless directly supported.\n");
-        sb.append("- Avoid turning simple projects into research-level systems.\n");
-        sb.append("- The resume should feel impressive because of strong engineering framing, not because of unrealistic claims.\n\n");
-
-        sb.append("Role-Specific Emphasis Rules:\n");
-        sb.append("- For backend or platform engineering roles, emphasize Java, Spring Boot, REST APIs, MyBatis, MySQL, authentication, validation, asynchronous processing, debugging, exception handling, reliability, API workflows, and database-backed systems.\n");
-        sb.append("- For AI application or LLM integration roles, emphasize OpenAI API integration, prompt orchestration, structured data aggregation, JSON processing, response validation, persistence workflows, and AI-assisted automation.\n");
-        sb.append("- For full-stack roles, emphasize React, Axios, frontend-backend integration, authentication state management, API-driven UI workflows, and CRUD interfaces.\n");
-        sb.append("- For embedded, robotics, hardware, aerospace, industrial, or systems engineering roles, emphasize embedded systems, sensor processing, PID control, real-time debugging, hardware-software integration, PCB design, testing, and iterative system optimization.\n");
-        sb.append("- For enterprise or large-company software engineering roles, emphasize software lifecycle awareness, debugging, maintainability, release workflows, collaboration, Git workflows, testing, validation, and engineering reliability.\n");
-        sb.append("- For data or operations-focused roles, emphasize automation, reporting workflows, data validation, reconciliation, Excel VBA, structured processing, and operational efficiency improvements.\n\n");
+        sb.append("- You may professionally polish rough notes into strong engineering resume bullets.\n");
+        sb.append("- You may infer realistic debugging, testing, validation, integration, workflow automation, request handling, data processing, or reliability context when reasonably supported.\n");
+        sb.append("- You may rewrite simple notes into stronger engineering-oriented resume language.\n");
+        sb.append("- Do not fabricate unsupported technologies, fake leadership, fake ownership, fake scale, fake distributed systems, fake cloud infrastructure, fake metrics, or fake achievements.\n");
+        sb.append("- Preserve realistic new graduate scope and technical depth.\n\n");
 
         sb.append("Anti-Student-Resume Rules:\n");
-        sb.append("- Avoid making the resume sound like a classroom assignment summary.\n");
-        sb.append("- Avoid overly academic explanations.\n");
-        sb.append("- Avoid excessive emphasis on coursework.\n");
-        sb.append("- Avoid simplistic project descriptions.\n");
-        sb.append("- Frame projects as engineering systems rather than homework deliverables.\n");
-        sb.append("- Emphasize implementation complexity, debugging, integration, iteration, testing, and engineering decision-making.\n");
-        sb.append("- The candidate should sound industry-oriented rather than purely academic.\n\n");
+        sb.append("- Do not make projects sound like classroom assignments.\n");
+        sb.append("- Avoid excessive academic explanation.\n");
+        sb.append("- Frame projects as engineering systems involving implementation, debugging, integration, testing, iteration, and design decisions.\n");
+        sb.append("- The candidate should sound industry-oriented and technically practical.\n\n");
 
-        sb.append("Bullet Density Optimization Rules:\n");
-        sb.append("- Every bullet must contain meaningful technical information.\n");
-        sb.append("- Avoid filler words and generic resume phrasing.\n");
-        sb.append("- Prefer dense technical phrasing over long explanations.\n");
-        sb.append("- Each bullet should ideally communicate technical implementation, engineering context, and purpose or impact.\n");
-        sb.append("- Avoid bullets that only describe responsibilities.\n");
-        sb.append("- Avoid bullets that sound like task lists.\n");
-        sb.append("- Avoid overly broad claims without technical grounding.\n");
-        sb.append("- Strong bullets should create the impression of technical ownership, engineering reasoning, and practical software development experience.\n\n");
+        sb.append("Skills Rules:\n");
+        sb.append("- Reorder skills based on target role relevance.\n");
+        sb.append("- Prioritize the most relevant technologies near the beginning of each category.\n");
+        sb.append("- Prefer concrete technologies, tools, frameworks, systems, and technical domains.\n");
+        sb.append("- Avoid abstract soft skills.\n");
+        sb.append("- Omit irrelevant skill categories when they weaken the resume focus.\n\n");
 
-        sb.append("Resume Bullet Writing Rules:\n");
-        sb.append("- Use concise accomplishment-oriented bullet points.\n");
-        sb.append("- Begin bullets with strong action verbs such as Developed, Built, Designed, Implemented, Integrated, Automated, Diagnosed, Debugged, Validated, Optimized, Streamlined, Orchestrated, Engineered, Refined, or Maintained.\n");
-        sb.append("- Avoid repetitive action verbs across bullets.\n");
-        sb.append("- Each bullet should ideally follow this structure: Action Verb + Technical Contribution + Tools/Systems + Engineering Purpose or Impact.\n");
-        sb.append("- Emphasize technical implementation and engineering reasoning instead of vague business summaries.\n");
-        sb.append("- Focus on engineering signals that recruiters and hiring managers value.\n");
-        sb.append("- Prefer technically dense wording over generic soft-skill descriptions.\n");
-        sb.append("- Use past tense for completed work.\n");
-        sb.append("- Avoid weak phrases such as Responsible for, Worked on, Assisted with, Helped with, Participated in, or Familiar with.\n");
-        sb.append("- Avoid sounding like a senior architect or principal engineer.\n");
-        sb.append("- Maintain strong but realistic new graduate engineering positioning.\n");
-        sb.append("- Strong bullets often include debugging, integration, validation, workflow automation, testing, system architecture, or reliability themes.\n");
-        sb.append("- Convert rough notes into polished engineering resume bullets.\n\n");
-
-        sb.append("Bullet Quality Examples:\n");
-        sb.append("Weak Bullet Example:\n");
-        sb.append("- Worked on backend APIs for insurance systems.\n\n");
-        sb.append("Strong Bullet Example:\n");
-        sb.append("- Developed backend APIs supporting structured insurance data retrieval, filtering, and validation workflows using Java, Spring Boot, and MyBatis.\n\n");
-        sb.append("Weak Bullet Example:\n");
-        sb.append("- Helped debug issues in production.\n\n");
-        sb.append("Strong Bullet Example:\n");
-        sb.append("- Diagnosed production workflow failures through cloud log analysis, request tracing, and backend validation improvements to reduce recurring system incidents.\n\n");
-        sb.append("Weak Bullet Example:\n");
-        sb.append("- Built AI resume generator.\n\n");
-        sb.append("Strong Bullet Example:\n");
-        sb.append("- Designed backend orchestration workflows that aggregate structured profile data and job descriptions to generate tailored resume content using OpenAI APIs and Spring Boot services.\n\n");
-        sb.append("Weak Bullet Example:\n");
-        sb.append("- Made a robot car for class.\n\n");
-        sb.append("Strong Bullet Example:\n");
-        sb.append("- Developed an embedded vision-guided robot car using OpenMV, PID control, and sensor filtering to support stable real-time lane following under noisy conditions.\n\n");
-
-        sb.append("Internship Compression Rules:\n");
-        sb.append("- Do not over-expand weak or low-relevance internship tasks.\n");
-        sb.append("- Compress repetitive operational work into concise summaries.\n");
-        sb.append("- Prioritize technical depth over business administration details.\n");
-        sb.append("- For less technical experiences, preserve only the strongest engineering, automation, data-processing, or validation-related contributions.\n\n");
-
-        sb.append("Skills Section Rules:\n");
-        sb.append("- Reorder and prioritize skills based on target role relevance.\n");
-        sb.append("- Prioritize the technologies most aligned with the target role near the beginning of each category.\n");
-        sb.append("- Only include skills reasonably supported by the candidate background.\n");
-        sb.append("- Avoid unrelated buzzwords or excessive keyword stuffing.\n");
-        sb.append("- Avoid listing abstract qualities such as Reliability Improvement, Problem Solving, Teamwork, or Debugging as standalone skills unless they are concrete tools or technical domains.\n");
-        sb.append("- Prefer concrete technical skills, tools, frameworks, languages, systems, and engineering domains.\n");
-        sb.append("- Preferred categories include: Languages, Backend, Frontend, AI / Integration, Tools, and Systems & Hardware.\n\n");
-
-        sb.append("Education Section Rules:\n");
-        sb.append("- Keep education concise.\n");
-        sb.append("- Include GPA if available and strong.\n");
-        sb.append("- Coursework should be selected based on relevance to the target role.\n");
-        sb.append("- Do not list too many courses.\n");
-        sb.append("- Prefer systems, software engineering, algorithms, operating systems, databases, networks, embedded systems, machine learning, or architecture courses when relevant.\n\n");
+        sb.append("Formatting Rules:\n");
+        sb.append("- Keep realistic one-page resume density.\n");
+        sb.append("- Recommended total length: 400-550 words.\n");
+        sb.append("- Use reverse chronological order.\n");
+        sb.append("- Use clean section headings: EDUCATION, EXPERIENCE, PROJECTS, SKILLS.\n");
+        sb.append("- Exclude null or empty fields.\n");
+        sb.append("- Never output the literal text 'null'.\n");
+        sb.append("- Do not include markdown tables, references, objective statements, or placeholder text.\n\n");
 
         sb.append("Required Resume Structure:\n");
         sb.append("FULL NAME\n");
@@ -508,7 +510,7 @@ public class ResumeService {
         sb.append("EDUCATION\n");
         sb.append("School Name — Degree, Major\n");
         sb.append("Location | Dates | GPA if available\n");
-        sb.append("- Relevant coursework or academic details only if valuable for the target role\n\n");
+        sb.append("- Relevant coursework only if useful for the target role\n\n");
 
         sb.append("EXPERIENCE\n");
         sb.append("Company Name — Position\n");
@@ -523,42 +525,24 @@ public class ResumeService {
         sb.append("- Bullet point\n\n");
 
         sb.append("SKILLS\n");
-        sb.append("Languages: ...\n");
-        sb.append("Backend: ...\n");
-        sb.append("Frontend: ...\n");
-        sb.append("AI / Integration: ...\n");
-        sb.append("Tools: ...\n");
-        sb.append("Systems & Hardware: ...\n\n");
-
-        sb.append("Length and Formatting Rules:\n");
-        sb.append("- Target total resume length: approximately 400-500 words.\n");
-        sb.append("- Do not exceed 550 words unless the candidate has unusually strong role-relevant content.\n");
-        sb.append("- Keep the resume realistic for a one-page new graduate software engineering resume.\n");
-        sb.append("- Use reverse chronological order within Experience and Education.\n");
-        sb.append("- Use more bullets only for highly relevant experiences/projects.\n");
-        sb.append("- Compress low-relevance experiences aggressively.\n");
-        sb.append("- Most bullets should remain around 20-35 words.\n");
-        sb.append("- Use clean section headings: EDUCATION, EXPERIENCE, PROJECTS, SKILLS.\n");
-        sb.append("- Do not include references, objective statements, demographic information, or long summaries.\n");
-        sb.append("- Do not use markdown tables.\n");
-        sb.append("- Do not include placeholder text.\n\n");
+        sb.append("Category: skills...\n\n");
 
         sb.append("Final Quality Check Before Output:\n");
         sb.append("- Does the resume clearly match the target job description?\n");
-        sb.append("- Are the strongest engineering signals placed early?\n");
-        sb.append("- Are low-relevance experiences compressed or omitted?\n");
+        sb.append("- Is the dominant engineering identity clear and role-appropriate?\n");
+        sb.append("- Are the strongest technical signals placed early?\n");
+        sb.append("- Are low-relevance details compressed or omitted?\n");
         sb.append("- Does every bullet contain technical value?\n");
-        sb.append("- Does the resume sound like a strong new graduate software engineer rather than a generic student?\n");
-        sb.append("- Are business-domain details minimized unless useful?\n");
-        sb.append("- Are skills concrete and job-relevant?\n");
-        sb.append("- Is the resume concise enough for one page?\n\n");
+        sb.append("- Does the resume sound like a strong new graduate engineer rather than a generic student?\n");
+        sb.append("- Are skills concrete, relevant, and properly ordered?\n");
+        sb.append("- Is the resume concise enough for one page?\n");
+        sb.append("- If a prior resume was provided, did the final resume improve and tailor it rather than blindly copying it?\n\n");
 
         sb.append("Output Requirements:\n");
         sb.append("- Output only the final resume.\n");
         sb.append("- Do not explain reasoning.\n");
         sb.append("- Do not output internal analysis.\n");
         sb.append("- Do not include markdown tables.\n");
-        sb.append("- Do not include placeholder text.\n");
         sb.append("- Preserve accurate candidate contact information.\n");
 
         return sb.toString();

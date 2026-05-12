@@ -25,4 +25,6 @@ public class UpdateProfileDTO {
 
     private String summary;
 
+    private String priorResume;
+
 }

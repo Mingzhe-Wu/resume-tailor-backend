@@ -32,6 +32,7 @@ public class ProfileService {
         profileEntity.setGithubUrl(profile.getGithubUrl());
         profileEntity.setLocation(profile.getLocation());
         profileEntity.setSummary(profile.getSummary());
+        profileEntity.setPriorResume(profile.getPriorResume());
         profileMapper.insert(profileEntity);
         return profileEntity;
     }
@@ -58,6 +59,7 @@ public class ProfileService {
         update.setGithubUrl(request.getGithubUrl());
         update.setLocation(request.getLocation());
         update.setSummary(request.getSummary());
+        update.setPriorResume(request.getPriorResume());
 
         profileMapper.updateById(update);
         return profileMapper.findByUserId(userId);

@@ -19,7 +19,8 @@ public interface ProfileMapper {
         location,
         summary,
         created_at,
-        updated_at
+        updated_at,
+        prior_resume
     ) VALUES (
         #{userId},
         #{fullName},
@@ -30,7 +31,8 @@ public interface ProfileMapper {
         #{location},
         #{summary},
         NOW(),
-        NOW()
+        NOW(),
+        #{priorResume}
     )
     """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
@@ -49,7 +51,8 @@ public interface ProfileMapper {
             location,
             summary,
             created_at,
-            updated_at
+            updated_at,
+            prior_resume
         FROM profiles
         WHERE user_id = #{userId}
         """)
@@ -68,7 +71,8 @@ public interface ProfileMapper {
             location,
             summary,
             created_at,
-            updated_at
+            updated_at,
+            prior_resume
         FROM profiles
         WHERE id = #{id}
         """)
@@ -86,6 +90,7 @@ public interface ProfileMapper {
             <if test="githubUrl != null">github_url = #{githubUrl},</if>
             <if test="location != null">location = #{location},</if>
             <if test="summary != null">summary = #{summary},</if>
+            <if test="priorResume != null">prior_resume = #{priorResume},</if>
             updated_at = NOW()
         </set>
         WHERE user_id = #{userId}
