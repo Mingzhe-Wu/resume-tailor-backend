@@ -2,6 +2,8 @@ package com.mingzhe.resumetailor.skill;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +43,13 @@ public class SkillController {
     public ResponseEntity<Void> deleteSkill(@PathVariable Long id) {
         skillService.deleteSkill(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/import/{profileId}")
+    public ResponseEntity<SkillImportResponseDTO> importSkillsFromCsv(@PathVariable Long profileId,
+                                                                      @RequestParam("file") MultipartFile file) {
+        SkillImportResponseDTO response = skillService.importSkillsFromCsv(profileId, file);
+        return ResponseEntity.ok(response);
     }
 
 }

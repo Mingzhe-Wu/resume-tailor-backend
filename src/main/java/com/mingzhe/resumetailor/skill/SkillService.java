@@ -1,10 +1,16 @@
 package com.mingzhe.resumetailor.skill;
 
+import com.mingzhe.resumetailor.exceptions.BadRequestException;
 import com.mingzhe.resumetailor.exceptions.ResourceNotFoundException;
 import com.mingzhe.resumetailor.profile.Profile;
 import com.mingzhe.resumetailor.profile.ProfileMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -67,6 +73,74 @@ public class SkillService {
         }
 
         skillMapper.deleteById(id);
+    }
+
+    public SkillImportResponseDTO importSkillsFromCsv(Long profileId, MultipartFile file) {
+        if (profileId == null) {
+            throw new BadRequestException("profileId is required");
+        }
+        if (file == null || file.isEmpty()) {
+            throw new BadRequestException("CSV file must not be empty");
+        }
+
+        Profile profile = profileMapper.findById(profileId);
+        if (profile == null) {
+            throw new ResourceNotFoundException("Profile not found");
+        }
+
+        int successCount = 0;
+        int failedCount = 0;
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            boolean headerSkipped = false;
+
+            while ((line = reader.readLine()) != null) {
+                if (!headerSkipped) {
+                    headerSkipped = true;
+                    continue;
+                }
+
+                String trimmedLine = line.trim();
+                if (trimmedLine.isEmpty()) {
+                    continue;
+                }
+
+                String[] columns = line.split(",", -1);
+                if (columns.length > 2) {
+                    failedCount++;
+                    continue;
+                }
+
+                String category = columns[0].trim();
+                String name = columns.length > 1 ? columns[1].trim() : "";
+
+                if (category.isEmpty() && name.isEmpty()) {
+                    continue;
+                }
+                if (name.isEmpty()) {
+                    failedCount++;
+                    continue;
+                }
+
+                Skill skill = new Skill();
+                skill.setProfileId(profileId);
+                skill.setCategory(category.isEmpty() ? null : category);
+                skill.setName(name);
+
+                try {
+                    skillMapper.insert(skill);
+                    successCount++;
+                } catch (RuntimeException ex) {
+                    failedCount++;
+                }
+            }
+        } catch (IOException ex) {
+            throw new BadRequestException("Failed to read CSV file");
+        }
+
+        return new SkillImportResponseDTO(successCount, failedCount);
     }
 
 }

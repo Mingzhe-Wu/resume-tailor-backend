@@ -36,7 +36,7 @@ public class OpenAiService {
 
             String body = """
             {
-              "model": "gpt-5.4-mini",
+              "model": "gpt-5.5",
               "messages": [
                 {"role": "user", "content": "%s"}
               ]
