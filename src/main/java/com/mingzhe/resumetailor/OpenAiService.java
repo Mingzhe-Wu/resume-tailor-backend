@@ -5,10 +5,12 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Calls the OpenAI chat completion API to generate resume content.
@@ -31,8 +33,11 @@ public class OpenAiService {
             conn.setDoOutput(true);
 
             String safePrompt = prompt
+                    .replace("\\", "\\\\")
                     .replace("\"", "\\\"")
-                    .replace("\n", "\\n");
+                    .replace("\r", "\\r")
+                    .replace("\n", "\\n")
+                    .replace("\t", "\\t");
 
             String body = """
             {
@@ -45,12 +50,21 @@ public class OpenAiService {
 
             // send request
             try (OutputStream os = conn.getOutputStream()) {
-                os.write(body.getBytes());
+                os.write(body.getBytes(StandardCharsets.UTF_8));
             }
 
-            // read from response
+            int statusCode = conn.getResponseCode();
+
+            InputStream inputStream;
+
+            if (statusCode >= 200 && statusCode < 300) {
+                inputStream = conn.getInputStream();
+            } else {
+                inputStream = conn.getErrorStream();
+            }
+
             BufferedReader br = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream())
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8)
             );
 
             // store response in string builder
@@ -61,16 +75,24 @@ public class OpenAiService {
                 response.append(line);
             }
 
-            // extract the content
-            String aiResponseRaw = response.toString();
+            String responseBody = response.toString();
 
+            System.out.println("OpenAI status code: " + statusCode);
+            System.out.println("OpenAI response: " + responseBody);
+
+            if (statusCode < 200 || statusCode >= 300) {
+                throw new RuntimeException("OpenAI API call failed with status code: " + statusCode);
+            }
+
+            // extract the content
             ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode root = objectMapper.readTree(aiResponseRaw);
+            JsonNode root = objectMapper.readTree(responseBody);
 
             return root.path("choices")
                     .get(0)
                     .path("message")
-                    .path("content").asString();
+                    .path("content")
+                    .asString();
 
         } catch (Exception e) {
             e.printStackTrace();
