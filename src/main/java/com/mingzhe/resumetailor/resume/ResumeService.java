@@ -291,13 +291,22 @@ public class ResumeService {
         sb.append("Writing Style Rules:\n");
         sb.append("- Write concise, technically dense, accomplishment-oriented bullet points.\n");
         sb.append("- Keep most bullets around 20-35 words.\n");
-        sb.append("- Vary sentence structure and density naturally across bullets.\n");
+        sb.append("- Not every bullet point needs to maximize technical density or keyword coverage.\n");
+        sb.append("- Some bullets may focus primarily on implementation details, while others may emphasize debugging, operational workflows, testing, coordination, or product behavior.\n");
+        sb.append("- Allow some bullets to remain simpler and more direct when appropriate.\n");
+        sb.append("- Avoid making all bullet points equally optimized, equally technical, or structurally identical.\n");
         sb.append("- Some bullets may emphasize implementation while others emphasize debugging, integration, testing, or workflow improvements.\n");
         sb.append("- Avoid making every bullet equally dense or mechanically optimized.\n");
         sb.append("- Prefer engineering-oriented language over business-oriented summaries.\n");
         sb.append("- Avoid weak phrases such as Responsible for, Worked on, Helped with, Assisted with, or Participated in.\n");
         sb.append("- Use strong action verbs such as Developed, Built, Designed, Implemented, Integrated, Automated, Diagnosed, Debugged, Optimized, Refined, and Streamlined.\n");
         sb.append("- Use past tense for completed work.\n\n");
+        sb.append("- Avoid stacking too many engineering concepts, technologies, or workflow terms into a single bullet point.\n");
+        sb.append("- Prefer 2-3 strongly connected technical ideas per bullet instead of long keyword chains.\n");
+        sb.append("- Prefer terminology commonly used by real software engineers in production environments.\n");
+        sb.append("- Avoid overly abstract, inflated, or mechanically optimized engineering phrasing.\n");
+        sb.append("- Use language that sounds natural in peer engineering discussions and code reviews.\n");
+
 
         sb.append("Example Writing Transformation:\n");
         sb.append("Weak: Worked on backend APIs using Spring Boot and handled errors.\n");
